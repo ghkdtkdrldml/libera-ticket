@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="fragments :: card(~{::body})">
+<body>
+<div>
+    <h1 class="title">일반 응모</h1>
+    <div id="form"></div>
+    <div class="footer"><a href="/">메인으로</a></div>
+</div>
+<script>
+    const form=document.getElementById('form');let rows=[{name:'',email:'',phone:''}],rep=false;
+    function render(){
+      form.innerHTML='';const box=document.createElement('div');
+      rows.forEach((r,i)=>{const ro=(rep&&i>0);const row=document.createElement('div');row.className='row';
+        row.innerHTML=`
+          <input type="text" placeholder="이름" value="${r.name}" oninput="onE(${i},'name',this.value)">
+          <input type="email" placeholder="이메일" ${ro?'disabled':''} value="${r.email||''}" oninput="onE(${i},'email',this.value)">
+          <input type="tel" placeholder="전화번호" ${ro?'disabled':''} value="${r.phone||''}" oninput="onE(${i},'phone',this.value)">
+          <div class="actions">${i===0?`<button onclick="add()">+</button>`:`<button onclick="add()">+</button><button onclick="del(${i})">-</button>`}</div>`;
+        box.appendChild(row);
+      });
+      const tools=document.createElement('div'); if(rows.length>=2){tools.innerHTML=`<label><input type="checkbox" ${rep?'checked':''} onchange="tog(this.checked)"> 대표 수령</label>`;}
+      const submit=document.createElement('div');submit.style='display:flex;justify-content:flex-end;gap:8px;margin-top:14px';
+      submit.innerHTML=`<button class="btn" onclick="go()">응모하기</button>`;
+      form.appendChild(box); if(rows.length>=2) form.appendChild(tools); form.appendChild(submit);
+    }
+    function onE(i,k,v){rows[i][k]=v;} function add(){rows.push({name:'',email:'',phone:''});render();}
+    function del(i){rows.splice(i,1);if(rows.length<2)rep=false;render();} function tog(v){rep=v;render();}
+    async function go(){if(!confirm(`총 ${rows.length}명 맞으신가요? 기재주신 연락처로 알림 메일 발송됩니다.`))return;
+      const body={domainType:'RSVP',performerName:null,isRepDelivery:rep,members:rows};
+      const res=await fetch('/api/applications',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+      if(res.ok){alert('성공적으로 응모되었습니다!\n10월 25일 토요일에 응모 결과가 기재주신 연락처로 발송예정입니다. 감사합니다.');location.href='/';}
+      else{alert('오류: '+await res.text());}
+    }
+    render();
+</script>
+</body>
+</html>

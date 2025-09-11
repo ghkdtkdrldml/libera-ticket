@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="fragments :: card(~{::body})">
+<body>
+<div>
+    <h1 class="title">초대권 수령</h1>
+    <input id="pf" type="text" placeholder="초대한 연주자의 이름을 입력해주세요" style="width:100%;margin-bottom:12px;padding:12px;border:1px solid #ddd;border-radius:10px"/>
+    <div class="hint">등록된 연주자 이름과 일치해야 다음 단계로 진행됩니다.</div>
+    <div id="warn" class="hint" style="color:#b00;display:none;margin-top:6px">연주자 이름을 다시 한 번 입력해주세요.</div>
+    <div id="form" style="display:none;margin-top:16px"></div>
+    <div class="footer" style="margin-top:8px"><a href="/">메인으로</a></div>
+</div>
+<script th:inline="javascript">
+    let performers=/*[[${performers}]]*/[];
+    let rows=[{name:'',email:'',phone:''}],rep=false;
+    const pf=document.getElementById('pf'),warn=document.getElementById('warn'),form=document.getElementById('form');
+    pf.addEventListener('input',()=>{const name=pf.value.trim().toLowerCase();const ok=performers.some(p=>p.name.toLowerCase()===name);
+      form.style.display=ok?'block':'none'; warn.style.display=(name && !ok)?'block':'none';});
+    function render(){form.innerHTML='';const box=document.createElement('div');
+      rows.forEach((r,i)=>{const ro=(rep&&i>0);const row=document.createElement('div');row.className='row';
+        row.innerHTML=`
+          <input type="text" placeholder="이름" value="${r.name}" oninput="onE(${i},'name',this.value)">
+          <input type="email" placeholder="이메일" ${ro?'disabled':''} value="${r.email||''}" oninput="onE(${i},'email',this.value)">
+          <input type="tel" placeholder="전화번호" ${ro?'disabled':''} value="${r.phone||''}" oninput="onE(${i},'phone',this.value)">
+          <div class="actions">${i===0?`<button onclick="add()">+</button>`:`<button onclick="add()">+</button><button onclick="del(${i})">-</button>`}</div>`;
+        box.appendChild(row);});
+      const tools=document.createElement('div'); if(rows.length>=2){tools.innerHTML=`<label><input type="checkbox" ${rep?'checked':''} onchange="tog(this.checked)"> 대표 수령</label>`;}
+      const submit=document.createElement('div');submit.style='display:flex;justify-content:flex-end;gap:8px;margin-top:14px';
+      submit.innerHTML=`<button class="btn" onclick="go()">응모하기</button>`;
+      form.appendChild(box); if(rows.length>=2) form.appendChild(tools); form.appendChild(submit);}
+    function onE(i,k,v){rows[i][k]=v;} function add(){rows.push({name:'',email:'',phone:''});render();}
+    function del(i){rows.splice(i,1);if(rows.length<2)rep=false;render();} function tog(v){rep=v;render();}
+    async function go(){const name=pf.value.trim();if(!confirm(`총 ${rows.length}명 맞으신가요? 기재주신 연락처로 알림 메일 발송됩니다.`))return;
+      const body={domainType:'INVITE',performerName:name,isRepDelivery:rep,members:rows};
+      const res=await fetch('/api/applications',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+      if(res.ok){alert('성공적으로 응모되었습니다!\n10월 25일 토요일에 응모 결과가 기재주신 연락처로 발송예정입니다. 감사합니다.');location.href='/';}
+      else{alert('오류: '+await res.text());}}
+    render();
+</script>
+</body>
+</html>

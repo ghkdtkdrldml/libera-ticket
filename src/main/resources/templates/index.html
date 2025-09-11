@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="fragments :: card(~{::body})">
+<body>
+<div>
+    <h1 class="title">리베라 첫 연주</h1>
+    <p class="sub">리베라의 첫 연주는 전석 초대석으로 진행됩니다.</p>
+    <div style="display:flex;flex-direction:column;gap:12px;margin:18px 0 8px">
+        <a class="btn" href="/rsvp">[티켓 응모하기]</a>
+        <div class="hint">클릭하여 응모하시면 추첨을 통해 초대권을 보내드려요!</div>
+    </div>
+    <div style="border-top:1px solid #eee;padding-top:14px;margin-top:10px">
+        <a class="btn secondary" href="/invite">[초대권 수령하기]</a>
+        <div class="hint">연주자로부터 직접 초대받으셨을까요?</div>
+    </div>
+    <div class="footer">© Libera</div>
+</div>
+</body>
+</html>
