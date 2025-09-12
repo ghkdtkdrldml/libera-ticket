@@ -2,10 +2,14 @@ spring:
   application:
     name: libera-ticket
 
+#  datasource:
+#    url: jdbc:h2:mem:testdb;MODE=PostgreSQL;DB_CLOSE_DELAY=-1
+#    username: sa
+#    password:
   datasource:
-    url: jdbc:h2:mem:testdb;MODE=PostgreSQL;DB_CLOSE_DELAY=-1
-    username: sa
-    password:
+    url: jdbc:postgresql://maglev.proxy.rlwy.net:58833/railway?sslmode=require
+    username: postgres
+    password: NweWNWhpsYKRAQrxXviLnwRpUYtdefiB
 
   jpa:
     hibernate:
