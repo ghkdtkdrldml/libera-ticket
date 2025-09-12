@@ -94,7 +94,28 @@
     function addRow(){ rows.push({name:'', email:'', phone:''}); render(); }
     function removeRow(i){ rows.splice(i,1); if(rows.length<2) rep=false; render(); }
 
+    function isValidEmail(email){
+      return /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,6}$/.test(email);
+    }
+    function isValidPhone(phone){
+      return /^010-\d{4}-\d{4}$/.test(phone);
+    }
+
     async function onSubmit(){
+      for(let i=0;i<rows.length;i++){
+        const r=rows[i];
+        if(!r.name.trim()){
+          alert(`${i+1}번째 행: 이름을 입력하세요.`); return;
+        }
+        if(!(rep && i>0)){ // 대표수령 제외
+          if(!isValidEmail(r.email||'')){
+            alert(`${i+1}번째 행: 이메일 형식이 올바르지 않습니다.`); return;
+          }
+          if(!isValidPhone(r.phone||'')){
+            alert(`${i+1}번째 행: 전화번호는 010-xxxx-xxxx 형식이어야 합니다.`); return;
+          }
+        }
+      }
       const name = pf.value.trim();
       if(!confirm(`총 ${rows.length}명 맞으신가요? 기재주신 연락처로 알림 메일 발송됩니다.`)) return;
       const body = { domainType:'INVITE', performerName:name, isRepDelivery:rep, members:rows };

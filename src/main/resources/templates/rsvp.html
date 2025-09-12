@@ -39,47 +39,54 @@
       return `<button class="min-w-[42px] px-3 py-2 rounded-lg ring-1 ring-brand/15 text-brand/80 hover:bg-brand/5">${html}</button>`;
     }
 
-  function render(){
-    form.innerHTML = '';
-    rows.forEach((r,i)=>{
-      const ro = (rep && i>0);
-      const row = document.createElement('div');
-      // ✅ 좁은화면: 세로 배치, ✅ md이상: 12컬럼 그리드
-row.className = 'grid gap-3 grid-cols-1 ' +
-                'md:[grid-template-columns:1fr_1fr_minmax(12rem,1fr)_4.5rem] items-start';
-row.innerHTML = `
-  <input type="text" placeholder="이름" value="${r.name||''}"
-         class="min-w-0 rounded-xl ring-1 ring-brand/15 px-4 py-3 focus:outline-none focus:ring-brand/30"
-         oninput="onE(${i},'name',this.value)" aria-label="이름">
+    function render(){
+        form.innerHTML = '';
+        rows.forEach((r,i)=>{
+            const ro = (rep && i>0);
+            const row = document.createElement('div');
+            // ✅ 좁은화면: 세로 배치, ✅ md이상: 12컬럼 그리드
+            row.className = 'grid gap-3 grid-cols-1 ' +
+                            'md:[grid-template-columns:1fr_1fr_minmax(12rem,1fr)_4.5rem] items-start';
+            row.innerHTML = `
+              <input type="text" placeholder="이름" value="${r.name||''}"
+                     class="min-w-0 rounded-xl ring-1 ring-brand/15 px-4 py-3 focus:outline-none focus:ring-brand/30"
+                     oninput="onE(${i},'name',this.value)" aria-label="이름">
 
-  <input type="email" placeholder="이메일" value="${r.email||''}" ${ro?'disabled':''}
-         class="min-w-0 rounded-xl ring-1 ring-brand/15 px-4 py-3 ${ro?'bg-gray-100 cursor-not-allowed':''} focus:outline-none focus:ring-brand/30"
-         oninput="onE(${i},'email',this.value)" aria-label="이메일">
+              <input type="email" placeholder="이메일" value="${r.email||''}" ${ro?'disabled':''}
+                     class="min-w-0 rounded-xl ring-1 ring-brand/15 px-4 py-3 ${ro?'bg-gray-100 cursor-not-allowed':''} focus:outline-none focus:ring-brand/30"
+                     oninput="onE(${i},'email',this.value)" aria-label="이메일">
 
-  <input type="tel" placeholder="전화번호" value="${r.phone||''}" ${ro?'disabled':''}
-         class="min-w-0 rounded-xl ring-1 ring-brand/15 px-4 py-3 ${ro?'bg-gray-100 cursor-not-allowed':''} focus:outline-none focus:ring-brand/30"
-         oninput="onE(${i},'phone',this.value)" aria-label="전화번호">
+              <input type="tel" placeholder="전화번호" value="${r.phone||''}" ${ro?'disabled':''}
+                     class="min-w-0 rounded-xl ring-1 ring-brand/15 px-4 py-3 ${ro?'bg-gray-100 cursor-not-allowed':''} focus:outline-none focus:ring-brand/30"
+                     oninput="onE(${i},'phone',this.value)" aria-label="전화번호">
 
-  <!-- 버튼 칼럼: 모바일=아래줄 전폭, md이상=고정폭 4.5rem -->
-  <div class="md:col-span-1 col-span-12 flex justify-end gap-2 mt-1 md:mt-0">
-    ${i===0
-      ? `<button class="min-w-[2.25rem] px-3 py-2 rounded-lg ring-1 ring-brand/15 text-brand/80 hover:bg-brand/5">+</button>`
-      : `<button class="min-w-[2.25rem] px-3 py-2 rounded-lg ring-1 ring-brand/15 text-brand/80 hover:bg-brand/5">+</button>
-         <button class="min-w-[2.25rem] px-3 py-2 rounded-lg ring-1 ring-brand/15 text-brand/80 hover:bg-brand/5">−</button>`}
-  </div>
-`;
-      form.appendChild(row);
+              <!-- 버튼 칼럼: 모바일=아래줄 전폭, md이상=고정폭 4.5rem -->
+              <div class="md:col-span-1 col-span-12 flex justify-end gap-2 mt-1 md:mt-0">
+                ${i===0
+                  ? `<button class="min-w-[2.25rem] px-3 py-2 rounded-lg ring-1 ring-brand/15 text-brand/80 hover:bg-brand/5">+</button>`
+                  : `<button class="min-w-[2.25rem] px-3 py-2 rounded-lg ring-1 ring-brand/15 text-brand/80 hover:bg-brand/5">+</button>
+                     <button class="min-w-[2.25rem] px-3 py-2 rounded-lg ring-1 ring-brand/15 text-brand/80 hover:bg-brand/5">−</button>`}
+              </div>
+            `;
+              form.appendChild(row);
 
-      // 버튼 핸들러 연결
-      const btns = row.querySelectorAll('button');
-      btns[0].onclick = addRow;
-      if (btns[1]) btns[1].onclick = ()=>removeRow(i);
-    });
+              // 버튼 핸들러 연결
+              const btns = row.querySelectorAll('button');
+              btns[0].onclick = addRow;
+              if (btns[1]) btns[1].onclick = ()=>removeRow(i);
+        });
 
-    // 대표 수령 토글 노출
-    repLabel.classList.toggle('hidden', rows.length < 2);
-    repCheck.checked = rep;
-  }
+        // 대표 수령 토글 노출
+        repLabel.classList.toggle('hidden', rows.length < 2);
+        repCheck.checked = rep;
+    }
+
+    function isValidEmail(email){
+      return /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,6}$/.test(email);
+    }
+    function isValidPhone(phone){
+      return /^010-\d{4}-\d{4}$/.test(phone);
+    }
 
 
     function onE(i,k,v){ rows[i][k]=v; }
@@ -87,7 +94,22 @@ row.innerHTML = `
     function removeRow(i){ rows.splice(i,1); if(rows.length<2) rep=false; render(); }
 
     async function onSubmit(){
+      for(let i=0;i<rows.length;i++){
+        const r=rows[i];
+        if(!r.name.trim()){
+          alert(`${i+1}번째 행: 이름을 입력하세요.`); return;
+        }
+        if(!(rep && i>0)){ // 대표수령 제외
+          if(!isValidEmail(r.email||'')){
+            alert(`${i+1}번째 행: 이메일 형식이 올바르지 않습니다.`); return;
+          }
+          if(!isValidPhone(r.phone||'')){
+            alert(`${i+1}번째 행: 전화번호는 010-xxxx-xxxx 형식이어야 합니다.`); return;
+          }
+        }
+      }
       if(!confirm(`총 ${rows.length}명 맞으신가요? 기재주신 연락처로 알림 메일 발송됩니다.`)) return;
+
       const body = { domainType:'RSVP', performerName:null, isRepDelivery:rep, members:rows };
       const res = await fetch('/api/applications',{ method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body) });
       if(res.ok){
