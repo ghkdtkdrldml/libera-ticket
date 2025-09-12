@@ -1,18 +1,30 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" th:replace="fragments :: card(~{::body})">
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" th:replace="fragments :: layout(~{::body})">
 <body>
-<div>
-    <h1 class="title">리베라 첫 연주</h1>
-    <p class="sub">리베라의 첫 연주는 전석 초대석으로 진행됩니다.</p>
-    <div style="display:flex;flex-direction:column;gap:12px;margin:18px 0 8px">
-        <a class="btn" href="/rsvp">[티켓 응모하기]</a>
-        <div class="hint">클릭하여 응모하시면 추첨을 통해 초대권을 보내드려요!</div>
+<section class="space-y-5">
+    <h2 class="text-3xl sm:text-4xl font-serif font-semibold tracking-tight text-brand">
+        리베라 첫 연주
+    </h2>
+    <p class="text-brand/70 leading-relaxed">
+        리베라의 첫 연주는 <span class="font-medium text-brand">전석 초대석</span>으로 진행됩니다.<br class="hidden sm:block"/>
+        아래에서 응모하시거나, 연주자로부터 받으신 초대권을 등록해 주세요.
+    </p>
+
+    <div class="mt-6 grid gap-3 sm:flex sm:items-center sm:gap-4">
+        <a href="/rsvp"
+           class="inline-flex items-center justify-center rounded-xl bg-brand px-5 py-3 text-white font-medium shadow hover:shadow-lg hover:bg-brand/90 transition">
+            [티켓 응모하기]
+        </a>
+        <span class="text-xs text-brand/60">클릭하여 응모하시면 추첨을 통해 초대권을 보내드려요!</span>
     </div>
-    <div style="border-top:1px solid #eee;padding-top:14px;margin-top:10px">
-        <a class="btn secondary" href="/invite">[초대권 수령하기]</a>
-        <div class="hint">연주자로부터 직접 초대받으셨을까요?</div>
+
+    <div class="mt-2 flex items-center gap-3">
+        <a href="/invite"
+           class="inline-flex items-center justify-center rounded-xl bg-white px-5 py-3 text-brand font-medium ring-1 ring-brand/10 hover:ring-brand/20 transition">
+            [초대권 수령하기]
+        </a>
+        <span class="text-xs text-brand/60">연주자로부터 직접 초대받으셨을까요?</span>
     </div>
-    <div class="footer">© Libera</div>
-</div>
+</section>
 </body>
 </html>

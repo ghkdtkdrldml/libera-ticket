@@ -19,7 +19,7 @@ public class DataInit implements CommandLineRunner {
                     n("Frank"), n("Grace"), n("Heidi"), n("Ivan"), n("Judy"),
                     n("Mallory"), n("Niaj"), n("Olivia"), n("Peggy"), n("Sybil"),
                     n("Trent"), n("Victor"), n("Walter"), n("Yvonne"), n("Zara"),
-                    n("Liam"), n("Emma"), n("Noah"), n("Ava"), n("Mia")
+                    n("Liam"), n("Emma"), n("Noah"), n("Ava"), n("허영우")
             ));
         }
     }

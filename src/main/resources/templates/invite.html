@@ -1,39 +1,112 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" th:replace="fragments :: card(~{::body})">
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" th:replace="fragments :: layout(~{::body})">
 <body>
-<div>
-    <h1 class="title">초대권 수령</h1>
-    <input id="pf" type="text" placeholder="초대한 연주자의 이름을 입력해주세요" style="width:100%;margin-bottom:12px;padding:12px;border:1px solid #ddd;border-radius:10px"/>
-    <div class="hint">등록된 연주자 이름과 일치해야 다음 단계로 진행됩니다.</div>
-    <div id="warn" class="hint" style="color:#b00;display:none;margin-top:6px">연주자 이름을 다시 한 번 입력해주세요.</div>
-    <div id="form" style="display:none;margin-top:16px"></div>
-    <div class="footer" style="margin-top:8px"><a href="/">메인으로</a></div>
-</div>
+<section>
+    <h2 class="text-2xl sm:text-3xl font-semibold tracking-tight text-brand mb-2">초대권 수령</h2>
+    <p class="text-sm text-brand/60 mb-4">초대한 연주자의 이름을 입력하면 다음 단계로 진행됩니다.</p>
+
+    <input id="pf" type="text" placeholder="초대한 연주자의 이름을 입력해주세요"
+           class="w-full rounded-xl ring-1 ring-brand/15 px-4 py-3 focus:outline-none focus:ring-brand/30 mb-2" />
+    <p id="warn" class="hidden text-sm text-red-600 mb-4">연주자 이름을 다시 한 번 입력해주세요.</p>
+
+    <div id="form" class="hidden space-y-3"></div>
+
+    <div class="mt-5 flex items-center justify-between">
+        <label id="repLabel" class="hidden items-center gap-2 text-sm text-brand/80">
+            <input id="repCheck" type="checkbox" class="h-4 w-4 rounded border-brand/30 text-brand focus:ring-brand/30">
+            대표 수령
+        </label>
+        <div class="ml-auto">
+            <button class="inline-flex items-center rounded-lg bg-brand px-4 py-2 text-white font-medium hover:bg-brand/90 transition"
+                    onclick="onSubmit()">
+                응모하기
+            </button>
+        </div>
+    </div>
+
+    <div class="mt-6 text-center">
+        <a class="text-sm text-brand/60 hover:text-brand" href="/">메인으로</a>
+    </div>
+</section>
+
 <script th:inline="javascript">
-    let performers=/*[[${performers}]]*/[];
-    let rows=[{name:'',email:'',phone:''}],rep=false;
-    const pf=document.getElementById('pf'),warn=document.getElementById('warn'),form=document.getElementById('form');
-    pf.addEventListener('input',()=>{const name=pf.value.trim().toLowerCase();const ok=performers.some(p=>p.name.toLowerCase()===name);
-      form.style.display=ok?'block':'none'; warn.style.display=(name && !ok)?'block':'none';});
-    function render(){form.innerHTML='';const box=document.createElement('div');
-      rows.forEach((r,i)=>{const ro=(rep&&i>0);const row=document.createElement('div');row.className='row';
-        row.innerHTML=`
-          <input type="text" placeholder="이름" value="${r.name}" oninput="onE(${i},'name',this.value)">
-          <input type="email" placeholder="이메일" ${ro?'disabled':''} value="${r.email||''}" oninput="onE(${i},'email',this.value)">
-          <input type="tel" placeholder="전화번호" ${ro?'disabled':''} value="${r.phone||''}" oninput="onE(${i},'phone',this.value)">
-          <div class="actions">${i===0?`<button onclick="add()">+</button>`:`<button onclick="add()">+</button><button onclick="del(${i})">-</button>`}</div>`;
-        box.appendChild(row);});
-      const tools=document.createElement('div'); if(rows.length>=2){tools.innerHTML=`<label><input type="checkbox" ${rep?'checked':''} onchange="tog(this.checked)"> 대표 수령</label>`;}
-      const submit=document.createElement('div');submit.style='display:flex;justify-content:flex-end;gap:8px;margin-top:14px';
-      submit.innerHTML=`<button class="btn" onclick="go()">응모하기</button>`;
-      form.appendChild(box); if(rows.length>=2) form.appendChild(tools); form.appendChild(submit);}
-    function onE(i,k,v){rows[i][k]=v;} function add(){rows.push({name:'',email:'',phone:''});render();}
-    function del(i){rows.splice(i,1);if(rows.length<2)rep=false;render();} function tog(v){rep=v;render();}
-    async function go(){const name=pf.value.trim();if(!confirm(`총 ${rows.length}명 맞으신가요? 기재주신 연락처로 알림 메일 발송됩니다.`))return;
-      const body={domainType:'INVITE',performerName:name,isRepDelivery:rep,members:rows};
-      const res=await fetch('/api/applications',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
-      if(res.ok){alert('성공적으로 응모되었습니다!\n10월 25일 토요일에 응모 결과가 기재주신 연락처로 발송예정입니다. 감사합니다.');location.href='/';}
-      else{alert('오류: '+await res.text());}}
+    let performers = /*[[${performers}]]*/ [];
+    const pf = document.getElementById('pf');
+    const warn = document.getElementById('warn');
+    const form = document.getElementById('form');
+    const repLabel = document.getElementById('repLabel');
+    const repCheck = document.getElementById('repCheck');
+
+    let rows = [{name:'', email:'', phone:''}];
+    let rep = false;
+
+    repCheck.addEventListener('change', (e)=>{ rep = e.target.checked; render(); });
+
+    pf.addEventListener('input', ()=>{
+      const name = pf.value.trim().toLowerCase();
+      const ok = performers.some(p => (p.name||'').toLowerCase() === name);
+      form.classList.toggle('hidden', !ok);
+      warn.classList.toggle('hidden', !(name && !ok));
+    });
+
+    function controlBtn(html){ return `<button class="px-3 py-2 rounded-lg ring-1 ring-brand/15 text-brand/80 hover:bg-brand/5">${html}</button>`; }
+
+    function render(){
+      form.innerHTML = '';
+      rows.forEach((r,i)=>{
+        const ro = (rep && i>0);
+        const row = document.createElement('div');
+      // ✅ 좁은화면: 세로 배치, ✅ md이상: 12컬럼 그리드
+        row.className = 'grid gap-3 grid-cols-1 ' +
+                        'md:[grid-template-columns:1fr_1fr_minmax(12rem,1fr)_4.5rem] items-start';
+        row.innerHTML = `
+          <input type="text" placeholder="이름" value="${r.name||''}"
+                 class="min-w-0 rounded-xl ring-1 ring-brand/15 px-4 py-3 focus:outline-none focus:ring-brand/30"
+                 oninput="onE(${i},'name',this.value)" aria-label="이름">
+
+          <input type="email" placeholder="이메일" value="${r.email||''}" ${ro?'disabled':''}
+                 class="min-w-0 rounded-xl ring-1 ring-brand/15 px-4 py-3 ${ro?'bg-gray-100 cursor-not-allowed':''} focus:outline-none focus:ring-brand/30"
+                 oninput="onE(${i},'email',this.value)" aria-label="이메일">
+
+          <input type="tel" placeholder="전화번호" value="${r.phone||''}" ${ro?'disabled':''}
+                 class="min-w-0 rounded-xl ring-1 ring-brand/15 px-4 py-3 ${ro?'bg-gray-100 cursor-not-allowed':''} focus:outline-none focus:ring-brand/30"
+                 oninput="onE(${i},'phone',this.value)" aria-label="전화번호">
+
+          <!-- 버튼 칼럼: 모바일=아래줄 전폭, md이상=고정폭 4.5rem -->
+          <div class="md:col-span-1 col-span-12 flex justify-end gap-2 mt-1 md:mt-0">
+            ${i===0
+              ? `<button class="min-w-[2.25rem] px-3 py-2 rounded-lg ring-1 ring-brand/15 text-brand/80 hover:bg-brand/5">+</button>`
+              : `<button class="min-w-[2.25rem] px-3 py-2 rounded-lg ring-1 ring-brand/15 text-brand/80 hover:bg-brand/5">+</button>
+                 <button class="min-w-[2.25rem] px-3 py-2 rounded-lg ring-1 ring-brand/15 text-brand/80 hover:bg-brand/5">−</button>`}
+          </div>
+        `;
+        form.appendChild(row);
+        const btns = row.querySelectorAll('button');
+        btns[0].onclick = addRow;
+        if(btns[1]) btns[1].onclick = ()=>removeRow(i);
+      });
+
+      repLabel.classList.toggle('hidden', rows.length < 2);
+      repCheck.checked = rep;
+    }
+
+    function onE(i,k,v){ rows[i][k]=v; }
+    function addRow(){ rows.push({name:'', email:'', phone:''}); render(); }
+    function removeRow(i){ rows.splice(i,1); if(rows.length<2) rep=false; render(); }
+
+    async function onSubmit(){
+      const name = pf.value.trim();
+      if(!confirm(`총 ${rows.length}명 맞으신가요? 기재주신 연락처로 알림 메일 발송됩니다.`)) return;
+      const body = { domainType:'INVITE', performerName:name, isRepDelivery:rep, members:rows };
+      const res = await fetch('/api/applications',{ method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body) });
+      if(res.ok){
+        alert('성공적으로 응모되었습니다!\n10월 25일 토요일에 응모 결과가 기재주신 연락처로 발송예정입니다. 감사합니다.');
+        location.href='/';
+      } else {
+        alert('오류: ' + await res.text());
+      }
+    }
+
     render();
 </script>
 </body>
