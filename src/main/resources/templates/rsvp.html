@@ -7,16 +7,28 @@
 
     <div id="form" class="space-y-3"></div>
 
-    <div class="mt-5 flex items-center justify-between">
-        <label id="repLabel" class="hidden items-center gap-2 text-sm text-brand/80">
-            <input id="repCheck" type="checkbox" class="h-4 w-4 rounded border-brand/30 text-brand focus:ring-brand/30">
-            대표 수령
+    <div class="mt-5 flex flex-col gap-3">
+        <!-- ✅ 동의 체크 & 상세보기 -->
+        <label class="inline-flex items-start gap-2 text-sm text-brand/80 select-none">
+            <input id="consentChk" type="checkbox"
+                   class="mt-1 h-4 w-4 rounded border-brand/30 text-brand focus:ring-brand/30">
+            <span>
+              응모를 위해 <button type="button" class="underline underline-offset-2 hover:text-brand"
+                     onclick="openConsent()">개인정보 제공</button>에 동의합니다.
+            </span>
         </label>
-        <div class="ml-auto flex gap-2">
-            <button class="inline-flex items-center rounded-lg bg-brand px-4 py-2 text-white font-medium hover:bg-brand/90 transition"
-                    onclick="onSubmit()">
-                응모하기
-            </button>
+        <div class="mt-5 flex items-center justify-between">
+            <label id="repLabel" class="hidden items-center gap-2 text-sm text-brand/80">
+                <input id="repCheck" type="checkbox"
+                       class="h-4 w-4 rounded border-brand/30 text-brand focus:ring-brand/30">
+                대표 수령
+            </label>
+            <div class="ml-auto flex gap-2">
+                <button id="submitBtn" disabled class="inline-flex items-center rounded-lg bg-brand px-4 py-2 text-white font-medium hover:bg-brand/90 transition"
+                        onclick="onSubmit()">
+                    응모하기
+                </button>
+            </div>
         </div>
     </div>
 
@@ -24,11 +36,47 @@
         <a class="text-sm text-brand/60 hover:text-brand" href="/">메인으로</a>
     </div>
 </section>
+<!-- ✅ 개인정보 제공 안내 모달 -->
+<div id="consentModal" class="fixed inset-0 z-50 hidden">
+    <div class="absolute inset-0 bg-black/60" onclick="closeConsent()"></div>
+    <div class="absolute inset-0 flex items-center justify-center p-4">
+        <div class="w-full max-w-xl rounded-2xl bg-white shadow-card ring-1 ring-black/10">
+            <div class="px-6 py-5">
+                <h3 class="text-lg font-semibold text-brand mb-3">개인정보 제공 안내</h3>
+                <div class="text-sm text-brand/80 space-y-2 max-h-[60vh] overflow-auto">
+                    <p>① 수집 항목: 이름, 이메일, 전화번호(대표 수령 시 2행부터 이름만)</p>
+                    <p>② 이용 목적: 초대권 응모 관리, 당첨 안내 및 안내 메일/문자 발송, 응모 취소 처리</p>
+                    <p>③ 보유/이용 기간: 행사 종료 후 최대 30일 내 파기(법령에 다른 규정이 있으면 그에 따름)</p>
+                    <p>④ 제3자 제공/처리위탁: 메일/문자 발송 대행사 등(도입 시 고지)</p>
+                    <p>⑤ 동의 거부 권리: 동의하지 않을 수 있으나 이 경우 응모가 제한될 수 있음</p>
+                </div>
+                <div class="mt-5 flex justify-end gap-2">
+                    <button type="button" class="px-4 py-2 rounded-lg ring-1 ring-brand/15 text-brand/80 hover:bg-brand/5"
+                            onclick="closeConsent()">닫기</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
 <script>
     const form = document.getElementById('form');
     const repLabel = document.getElementById('repLabel');
     const repCheck = document.getElementById('repCheck');
+    const consentChk = document.getElementById('consentChk');
+    const submitBtn  = document.getElementById('submitBtn');
+
+    consentChk.addEventListener('change', syncSubmitState);
+
+    function syncSubmitState(){
+        const enabled = !!consentChk.checked;
+        submitBtn.disabled = !enabled;
+        submitBtn.classList.toggle('opacity-50', !enabled);
+        submitBtn.classList.toggle('cursor-not-allowed', !enabled);
+    }
+
+    function openConsent(){ document.getElementById('consentModal').classList.remove('hidden'); }
+    function closeConsent(){ document.getElementById('consentModal').classList.add('hidden'); }
 
     let rows = [{name:'', email:'', phone:''}];
     let rep = false;
@@ -44,30 +92,41 @@
         rows.forEach((r,i)=>{
             const ro = (rep && i>0);
             const row = document.createElement('div');
-            // ✅ 좁은화면: 세로 배치, ✅ md이상: 12컬럼 그리드
-            row.className = 'grid gap-3 grid-cols-1 ' +
-                            'md:[grid-template-columns:1fr_1fr_minmax(12rem,1fr)_4.5rem] items-start';
-            row.innerHTML = `
-              <input type="text" placeholder="이름" value="${r.name||''}"
-                     class="min-w-0 rounded-xl ring-1 ring-brand/15 px-4 py-3 focus:outline-none focus:ring-brand/30"
-                     oninput="onE(${i},'name',this.value)" aria-label="이름">
 
-              <input type="email" placeholder="이메일" value="${r.email||''}" ${ro?'disabled':''}
-                     class="min-w-0 rounded-xl ring-1 ring-brand/15 px-4 py-3 ${ro?'bg-gray-100 cursor-not-allowed':''} focus:outline-none focus:ring-brand/30"
-                     oninput="onE(${i},'email',this.value)" aria-label="이메일">
+        row.className = 'grid grid-cols-1 md:grid-cols-12 gap-3 items-start';
 
-              <input type="tel" placeholder="전화번호" value="${r.phone||''}" ${ro?'disabled':''}
-                     class="min-w-0 rounded-xl ring-1 ring-brand/15 px-4 py-3 ${ro?'bg-gray-100 cursor-not-allowed':''} focus:outline-none focus:ring-brand/30"
-                     oninput="onE(${i},'phone',this.value)" aria-label="전화번호">
+        row.innerHTML = `
+          <!-- 이름 -->
+          <input type="text" placeholder="이름" value="${r.name||''}"
+                 class="w-full min-w-0 col-span-12 md:col-span-4
+                        rounded-xl ring-1 ring-brand/15 px-4 py-3 focus:outline-none focus:ring-brand/30"
+                 oninput="onE(${i},'name',this.value)" aria-label="이름">
 
-              <!-- 버튼 칼럼: 모바일=아래줄 전폭, md이상=고정폭 4.5rem -->
-              <div class="md:col-span-1 col-span-12 flex justify-end gap-2 mt-1 md:mt-0">
-                ${i===0
-                  ? `<button class="min-w-[2.25rem] px-3 py-2 rounded-lg ring-1 ring-brand/15 text-brand/80 hover:bg-brand/5">+</button>`
-                  : `<button class="min-w-[2.25rem] px-3 py-2 rounded-lg ring-1 ring-brand/15 text-brand/80 hover:bg-brand/5">+</button>
-                     <button class="min-w-[2.25rem] px-3 py-2 rounded-lg ring-1 ring-brand/15 text-brand/80 hover:bg-brand/5">−</button>`}
-              </div>
-            `;
+          <!-- 이메일 -->
+          <input type="email" placeholder="이메일" value="${r.email||''}" ${ro?'disabled':''}
+                 class="w-full min-w-0 col-span-12 md:col-span-4
+                        rounded-xl ring-1 ring-brand/15 px-4 py-3 ${ro?'bg-gray-100 cursor-not-allowed':''}
+                        focus:outline-none focus:ring-brand/30"
+                 oninput="onE(${i},'email',this.value)" aria-label="이메일">
+
+          <!-- 전화번호 -->
+          <input type="tel" placeholder="전화번호" value="${r.phone||''}" ${ro?'disabled':''}
+                 class="w-full min-w-0 col-span-12 md:col-span-3
+                        rounded-xl ring-1 ring-brand/15 px-4 py-3 ${ro?'bg-gray-100 cursor-not-allowed':''}
+                        focus:outline-none focus:ring-brand/30"
+                 oninput="onE(${i},'phone',this.value)" aria-label="전화번호">
+
+          <!-- 버튼: 모바일은 다음 줄 전폭, md부터 1칸 고정폭 -->
+          <div class="col-span-12 md:col-span-1 md:w-[4.5rem] w-full shrink-0
+                      flex justify-end gap-2 mt-1 md:mt-0">
+            ${i===0
+              ? `<button class="w-9 h-10 rounded-lg ring-1 ring-brand/15 text-brand/80 hover:bg-brand/5">+</button>`
+              : `<button class="w-9 h-10 rounded-lg ring-1 ring-brand/15 text-brand/80 hover:bg-brand/5">+</button>
+                 <button class="w-9 h-10 rounded-lg ring-1 ring-brand/15 text-brand/80 hover:bg-brand/5">−</button>`}
+          </div>
+        `;
+
+
               form.appendChild(row);
 
               // 버튼 핸들러 연결
@@ -94,8 +153,14 @@
     function removeRow(i){ rows.splice(i,1); if(rows.length<2) rep=false; render(); }
 
     async function onSubmit(){
+      if(submitBtn.disabled) return; // 동의 전 클릭 방지
+      // (선택) 여기서도 한번 더 방어
+      if(!consentChk.checked){ alert('개인정보 제공에 동의해 주세요.'); return; }
       for(let i=0;i<rows.length;i++){
         const r=rows[i];
+        console.log('=======================');
+        console.log('r===>',r);
+        console.log('i====>',i);
         if(!r.name.trim()){
           alert(`${i+1}번째 행: 이름을 입력하세요.`); return;
         }
@@ -110,7 +175,7 @@
       }
       if(!confirm(`총 ${rows.length}명 맞으신가요? 기재주신 연락처로 알림 메일 발송됩니다.`)) return;
 
-      const body = { domainType:'RSVP', performerName:null, isRepDelivery:rep, members:rows };
+      const body = { domainType:'RSVP', performerName:null, isRepDelivery:rep, consentAgreed: true, members:rows };
       const res = await fetch('/api/applications',{ method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body) });
       if(res.ok){
         alert('성공적으로 응모되었습니다!\n10월 25일 토요일에 응모 결과가 기재주신 연락처로 발송예정입니다. 감사합니다.');

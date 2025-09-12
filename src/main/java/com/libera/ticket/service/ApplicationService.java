@@ -60,7 +60,11 @@ public class ApplicationService {
             am.setApplication(app);
             am.setRowOrder(i+1);
             am.setName(m.name());
-            if (!(repDelivery && i>0)) { am.setEmail(m.email()); am.setPhone(m.phone()); }
+            boolean relyOnRep = (repDelivery && i > 0);
+            if (!relyOnRep) {
+                am.setEmail((m.email() == null || m.email().isBlank()) ? null : m.email());
+                am.setPhone((m.phone() == null || m.phone().isBlank()) ? null : m.phone());
+            }
             memberRepo.save(am);
         }
 

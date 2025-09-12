@@ -12,6 +12,10 @@ public record CreateApplicationReq(
 
         boolean isRepDelivery,
 
+        // ✅ 프런트에서 체크해야만 true로 전송. 서버에서 반드시 true 요구
+        @AssertTrue(message = "개인정보 제공에 동의해 주세요.")
+        boolean consentAgreed,
+
         @Valid
         @Size(min = 1, max = 6) List<MemberReq> members
 ) {}
