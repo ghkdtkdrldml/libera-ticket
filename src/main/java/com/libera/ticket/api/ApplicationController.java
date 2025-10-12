@@ -22,9 +22,21 @@ public class ApplicationController {
     private final ApplicationMemberRepo memberRepo;
     private final ApplicationService service;
 
+//    @GetMapping("/")
+//    public String main() {
+//        return "index";
+//    }
+
+    // 공지 페이지
     @GetMapping("/")
+    public String notice() {
+        return "notice";
+    }
+
+    // 기존 메인 페이지
+    @GetMapping("/main")
     public String main() {
-        return "index";
+        return "index"; // 기존 메인 페이지 템플릿 이름
     }
 
     @GetMapping("/rsvp")
@@ -68,10 +80,10 @@ public class ApplicationController {
             var members = memberRepo.findByApplication_ApplicationIdOrderByRowOrderAsc(a.getApplicationId());
             for (ApplicationMember m : members) {
                 sb.append(a.getApplicationId()).append(',')
-                        .append(a.getDomainType()).append(',')
+                        .append(a.getDomainType().ko()).append(',')
                         .append(a.getPerformer() == null ? "" : a.getPerformer().getName()).append(',')
                         .append(a.getCreatedAt()).append(',')
-                        .append(a.getStatus()).append(',')
+                        .append(a.getStatus().ko()).append(',')
                         .append(m.getRowOrder()).append(',')
                         .append(q(m.getName())).append(',')
                         .append(q(m.getEmail())).append(',')

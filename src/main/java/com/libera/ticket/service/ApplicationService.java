@@ -19,10 +19,16 @@ public class ApplicationService {
     private final ApplicationRepo applicationRepo;
     private final ApplicationMemberRepo memberRepo;
     private final CancelTokenRepo cancelTokenRepo;
+    private final SmsService smsService;
+    private final EmailService emailService;
 
-    @Value("${app.base-url}") private String baseUrl;
-    @Value("${app.result-notice-date}") private LocalDate resultNoticeDate;
-    @Value("${app.cancel-token-expire-days:30}") private int tokenExpireDays;
+    @Value("${app.base-url}")
+    private String baseUrl;
+    @Value("${app.result-notice-date}")
+    private LocalDate resultNoticeDate;
+    @Value("${app.cancel-token-expire-days:30}")
+    private int tokenExpireDays;
+
 
     @Transactional
     public CreateApplicationRes create(CreateApplicationReq req) {
@@ -54,11 +60,11 @@ public class ApplicationService {
         app.setRepDelivery(repDelivery);
         applicationRepo.save(app);
 
-        for (int i=0;i<members.size();i++){
+        for (int i = 0; i < members.size(); i++) {
             var m = members.get(i);
             var am = new ApplicationMember();
             am.setApplication(app);
-            am.setRowOrder(i+1);
+            am.setRowOrder(i + 1);
             am.setName(m.name());
             boolean relyOnRep = (repDelivery && i > 0);
             if (!relyOnRep) {
@@ -75,6 +81,41 @@ public class ApplicationService {
 
         String cancelUrl = baseUrl + "/cancel/" + ct.getToken();
         String msg = "응모가 접수되었습니다. " + resultNoticeDate + "에 결과를 발송할 예정입니다.";
+        // 대표 연락처(1행)로만 발송
+        var repEmail = req.members().get(0).email();
+        var repPhone = req.members().get(0).phone(); // 010-1234-5678 형태
+        // … 기존 저장 로직 후
+        try {
+            //smsService.sendSms(repPhone,"리베라 초대권 응모 접수 완료!\n결과 안내: " + System.getenv("APP_RESULT_NOTICE_DATE"));
+        } catch (Exception ignore) {
+            // 로깅만 하고 실패해도 흐름 유지
+        }
+        try {
+            UUID id = app.getApplicationId();
+
+            String viewUrl = baseUrl + "/app/" + id; // ✅ 공개 조회 링크
+
+            // 메일 HTML (간결한 버튼)
+            String subject = "리베라 초대권 응모 접수 완료";
+            String html = """
+                    <div style="font-family:pretendard,Apple SD Gothic Neo,Roboto,Noto Sans,Arial,sans-serif;line-height:1.6;color:#111827">
+                      <h2 style="margin:0 0 8px 0;font-size:18px">응모가 접수되었습니다.</h2>
+                      <p style="margin:0 0 16px 0;color:#4b5563">응모 상세와 취소는 아래 버튼으로 확인하실 수 있습니다.</p>
+                      <p style="margin:24px 0">
+                        <a href="%s" style="display:inline-block;background:#111827;color:#fff;text-decoration:none;
+                           padding:12px 18px;border-radius:10px">내 응모내역 보기</a>
+                      </p>
+                      <p style="margin:24px 0 0 0;font-size:12px;color:#6b7280">
+                        본 메일은 발신 전용입니다. 링크가 열리지 않으면 아래 URL을 복사해 브라우저 주소창에 붙여넣어 주세요.<br/>
+                        %s
+                      </p>
+                    </div>
+                    """.formatted(viewUrl, viewUrl);
+            emailService.sendHtml(repEmail, subject, html);
+        } catch (Exception e) {
+            //log.warn("이메일 발송 실패: {}", e.getMessage());
+        }
+
         return new CreateApplicationRes(app.getApplicationId().toString(), app.getTotalCount(), cancelUrl, msg);
     }
 
@@ -86,4 +127,13 @@ public class ApplicationService {
         applicationRepo.save(app);
         return "응모가 취소되었습니다.";
     }
+
+    @Transactional
+    public String cancelByApplicationId(UUID applicationId) {
+        var app = applicationRepo.findById(applicationId).orElseThrow();
+        app.setStatus(AppStatus.CANCELLED);
+        applicationRepo.save(app);
+        return "응모가 취소되었습니다.";
+    }
+
 }

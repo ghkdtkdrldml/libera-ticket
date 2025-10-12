@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" th:replace="fragments :: layout(~{::body})">
+<body>
+<section>
+    <h2 class="text-2xl font-semibold text-brand mb-4">관리자 대시보드</h2>
+
+    <form method="get" class="grid grid-cols-1 md:grid-cols-12 gap-3 mb-4">
+        <input type="text" name="q" placeholder="이름/이메일/전화/연주자 검색" th:value="${q}"
+               class="col-span-12 md:col-span-6 rounded-xl ring-1 ring-brand/15 px-4 py-2">
+        <select name="type" class="col-span-6 md:col-span-3 rounded-xl ring-1 ring-brand/15 px-3 py-2">
+            <option th:selected="${type == null}" value="">전체 유형</option>
+            <option th:each="t : ${types}" th:value="${t.name()}" th:selected="${type==t}" th:text="${t.ko()}"></option>
+        </select>
+
+        <select name="status" class="col-span-6 md:col-span-2 rounded-xl ring-1 ring-brand/15 px-3 py-2">
+            <option th:selected="${status == null}" value="">전체 상태</option>
+            <option th:each="s : ${statuses}" th:value="${s.name()}" th:selected="${status==s}" th:text="${s.ko()}"></option>
+        </select>
+        <button class="col-span-12 md:col-span-1 rounded-xl bg-brand text-white px-4">검색</button>
+        <a href="/admin/export/xlsx" class="col-span-12 md:col-span-0 rounded-xl ring-1 ring-brand/15 px-4 py-2 text-center">엑셀다운</a>
+
+    </form>
+
+    <div class="overflow-x-auto rounded-xl ring-1 ring-brand/10">
+        <table class="min-w-full text-sm table-auto">
+            <thead class="bg-gray-50 text-brand/80">
+            <tr>
+                <th class="px-4 py-3 text-left whitespace-nowrap min-w-[140px]">생성시각</th>
+                <th class="px-4 py-3 text-left whitespace-nowrap min-w-[180px]">ID</th>
+                <th class="px-4 py-3 text-left whitespace-nowrap min-w-[120px]">유형</th>
+                <th class="px-4 py-3 text-left whitespace-nowrap min-w-[120px]">연주자</th>
+                <th class="px-4 py-3 text-left whitespace-nowrap min-w-[90px]">상태</th>
+                <th class="px-4 py-3 text-center whitespace-nowrap min-w-[70px]">인원</th>
+                <th class="px-4 py-3 text-left whitespace-nowrap min-w-[220px]">대표수령자</th>
+                <th class="px-4 py-3 text-center whitespace-nowrap min-w-[110px]">액션</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="a : ${page.content}" class="border-t">
+                <td class="px-3 py-2" th:text="${#temporals.format(a.createdAt, 'yyyy-MM-dd HH:mm')}"></td>
+                <td class="px-3 py-2">
+                    <a th:href="@{'/admin/applications/' + ${a.applicationId}}" class="underline"
+                       th:text="${#strings.abbreviate(a.applicationId.toString(), 15)}"></a>
+                </td>
+                <td class="px-3 py-2" th:text="${a.domainType.ko()}"></td>
+                <td class="px-3 py-2" th:text="${a.performer==null?'':a.performer.name}"></td>
+                <td class="px-3 py-2" th:text="${a.status.ko()}"></td>
+                <td class="px-3 py-2 text-center" th:text="${a.totalCount}"></td>
+                <td class="px-3 py-2">
+                    <div th:text="${a.repName}"></div>
+                    <div class="text-xs text-brand/60" th:text="${a.repEmail}"></div>
+                    <div class="text-xs text-brand/60" th:text="${a.repPhone}"></div>
+                </td>
+                <td class="px-3 py-2 text-center">
+                    <form th:if="${a.status.name() == 'SUBMITTED'}"
+                          th:action="@{'/admin/applications/' + ${a.applicationId} + '/cancel'}" method="post"
+                          onsubmit="return confirm('해당 응모를 취소할까요?');">
+                        <button class="px-3 py-1 rounded-lg ring-1 ring-red-200 text-red-700 hover:bg-red-50">취소</button>
+                    </form>
+                    <span th:if="${a.status.name() != 'SUBMITTED'}" class="text-brand/50">-</span>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- 페이지네이션 -->
+    <div class="mt-4 flex items-center justify-center gap-2 text-sm">
+        <a th:if="${!page.first}" th:href="@{|/admin?page=${page.number-1}&size=${page.size}&q=${q}&type=${type}&status=${status}|}"
+           class="px-3 py-1 rounded ring-1 ring-brand/15">이전</a>
+        <span th:text="${page.number+1} + ' / ' + ${page.totalPages}"></span>
+        <a th:if="${!page.last}" th:href="@{|/admin?page=${page.number+1}&size=${page.size}&q=${q}&type=${type}&status=${status}|}"
+           class="px-3 py-1 rounded ring-1 ring-brand/15">다음</a>
+    </div>
+</section>
+</body>
+</html>
