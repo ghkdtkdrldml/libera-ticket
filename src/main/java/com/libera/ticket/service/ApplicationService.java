@@ -4,6 +4,7 @@ import com.libera.ticket.api.dto.*;
 import com.libera.ticket.domain.*;
 import com.libera.ticket.repo.*;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -12,6 +13,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ApplicationService {
@@ -87,8 +89,8 @@ public class ApplicationService {
         // … 기존 저장 로직 후
         try {
             smsService.sendSms(repPhone,"리베라 초대권 응모 접수 완료!\n결과 안내: " + System.getenv("APP_RESULT_NOTICE_DATE"));
-        } catch (Exception ignore) {
-            // 로깅만 하고 실패해도 흐름 유지
+        } catch (Exception e) {
+            log.warn("SMS 발송 실패: {}", e.getMessage());
         }
         try {
             UUID id = app.getApplicationId();
@@ -113,7 +115,7 @@ public class ApplicationService {
                     """.formatted(viewUrl, viewUrl);
             emailService.sendHtml(repEmail, subject, html);
         } catch (Exception e) {
-            //log.warn("이메일 발송 실패: {}", e.getMessage());
+            log.warn("이메일 발송 실패: {}", e.getMessage());
         }
 
         return new CreateApplicationRes(app.getApplicationId().toString(), app.getTotalCount(), cancelUrl, msg);
