@@ -86,7 +86,7 @@ public class ApplicationService {
         var repPhone = req.members().get(0).phone(); // 010-1234-5678 형태
         // … 기존 저장 로직 후
         try {
-            //smsService.sendSms(repPhone,"리베라 초대권 응모 접수 완료!\n결과 안내: " + System.getenv("APP_RESULT_NOTICE_DATE"));
+            smsService.sendSms(repPhone,"리베라 초대권 응모 접수 완료!\n결과 안내: " + System.getenv("APP_RESULT_NOTICE_DATE"));
         } catch (Exception ignore) {
             // 로깅만 하고 실패해도 흐름 유지
         }
