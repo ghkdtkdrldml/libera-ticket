@@ -118,7 +118,7 @@
 
           <!-- 버튼: 모바일은 다음 줄 전폭, md부터 1칸 고정폭 -->
           <div class="col-span-12 md:col-span-1 md:w-[4.5rem] w-full shrink-0
-                      flex justify-end gap-2 mt-1 md:mt-0">
+                      flex justify-center md:justify-end gap-2 mt-2 md:mt-0">
             ${i===0
               ? `<button class="w-9 h-10 rounded-lg ring-1 ring-brand/15 text-brand/80 hover:bg-brand/5">+</button>`
               : `<button class="w-9 h-10 rounded-lg ring-1 ring-brand/15 text-brand/80 hover:bg-brand/5">+</button>
@@ -148,7 +148,29 @@
     }
 
 
-    function onE(i,k,v){ rows[i][k]=v; }
+    function onE(i,k,v){
+      // 전화번호일 때 자동 하이픈 처리
+      if(k === 'phone'){
+        v = formatPhone(v);
+        renderPhoneValue(i, v);
+      }
+      rows[i][k] = v;
+    }
+
+    // 전화번호 포맷터: 숫자만 남기고 010-xxxx-xxxx 형태로 변환
+    function formatPhone(value){
+      const num = value.replace(/[^0-9]/g, ''); // 숫자만 남김
+      if(num.length <= 3) return num;
+      if(num.length <= 7) return num.replace(/(\d{3})(\d+)/, '$1-$2');
+      return num.replace(/(\d{3})(\d{4})(\d{0,4})/, '$1-$2-$3').replace(/-$/, '');
+    }
+
+    // 입력 필드 값 즉시 갱신 (렌더 없이)
+    function renderPhoneValue(index, value){
+      const inputs = form.querySelectorAll('input[type="tel"]');
+      if(inputs[index]) inputs[index].value = value;
+    }
+
     function addRow(){ rows.push({name:'', email:'', phone:''}); render(); }
     function removeRow(i){ rows.splice(i,1); if(rows.length<2) rep=false; render(); }
 
