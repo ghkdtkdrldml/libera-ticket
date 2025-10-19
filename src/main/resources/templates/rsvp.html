@@ -5,6 +5,11 @@
     <h2 class="text-2xl sm:text-3xl font-semibold tracking-tight text-brand mb-2">일반 응모</h2>
     <p class="text-sm text-brand/60 mb-5">대표 수령을 선택하면 2행부터는 이름만 입력하면 됩니다.</p>
 
+    <label id="repLabel" class="hidden items-center gap-2 text-sm text-brand/80">
+        <input id="repCheck" type="checkbox"
+               class="h-4 w-4 rounded border-brand/30 text-brand focus:ring-brand/30">
+        ★ 대표 수령
+    </label>
     <div id="form" class="space-y-3"></div>
 
     <div class="mt-5 flex flex-col gap-3">
@@ -18,11 +23,6 @@
             </span>
         </label>
         <div class="mt-5 flex items-center justify-between">
-            <label id="repLabel" class="hidden items-center gap-2 text-sm text-brand/80">
-                <input id="repCheck" type="checkbox"
-                       class="h-4 w-4 rounded border-brand/30 text-brand focus:ring-brand/30">
-                대표 수령
-            </label>
             <div class="ml-auto flex gap-2">
                 <button id="submitBtn" disabled class="inline-flex items-center rounded-lg bg-brand px-4 py-2 text-white font-medium hover:bg-brand/90 transition"
                         onclick="onSubmit()">
@@ -88,57 +88,60 @@
     }
 
     function render(){
-        form.innerHTML = '';
-        rows.forEach((r,i)=>{
-            const ro = (rep && i>0);
-            const row = document.createElement('div');
+      form.innerHTML = '';
+      rows.forEach((r,i)=>{
+        const ro = (rep && i>0);
 
-        row.className = 'grid grid-cols-1 md:grid-cols-12 gap-3 items-start';
+        const card = document.createElement('div');
+        card.className = 'relative lib-card p-4 md:p-5';
 
-        row.innerHTML = `
-          <!-- 이름 -->
+        // 2번째 카드부터 우상단 '−'
+        if(i>0){
+          const del = document.createElement('button');
+          del.type = 'button';
+          del.className = 'lib-close';
+          del.setAttribute('aria-label','참석자 삭제');
+          del.title = '참석자 삭제';
+          del.textContent = 'x';
+          del.onclick = ()=>removeRow(i);
+          card.appendChild(del);
+        }
+
+        // 카드 본문 (그리드 인풋)
+        const inner = document.createElement('div');
+        inner.className = 'grid grid-cols-1 md:grid-cols-12 gap-3 items-start';
+        inner.innerHTML = `
+          <div class="lib-label col-span-12">참석자 ${i+1}</div>
+
           <input type="text" placeholder="이름" value="${r.name||''}"
-                 class="w-full min-w-0 col-span-12 md:col-span-4
-                        rounded-xl ring-1 ring-brand/15 px-4 py-3 focus:outline-none focus:ring-brand/30"
+                 class="lib-input col-span-12 md:col-span-4"
                  oninput="onE(${i},'name',this.value)" aria-label="이름">
 
-          <!-- 이메일 -->
           <input type="email" placeholder="이메일" value="${r.email||''}" ${ro?'disabled':''}
-                 class="w-full min-w-0 col-span-12 md:col-span-4
-                        rounded-xl ring-1 ring-brand/15 px-4 py-3 ${ro?'bg-gray-100 cursor-not-allowed':''}
-                        focus:outline-none focus:ring-brand/30"
+                 class="lib-input col-span-12 md:col-span-4 ${ro?'bg-gray-100 cursor-not-allowed':''}"
                  oninput="onE(${i},'email',this.value)" aria-label="이메일">
 
-          <!-- 전화번호 -->
-          <input type="tel" placeholder="전화번호" value="${r.phone||''}" ${ro?'disabled':''}
-                 class="w-full min-w-0 col-span-12 md:col-span-3
-                        rounded-xl ring-1 ring-brand/15 px-4 py-3 ${ro?'bg-gray-100 cursor-not-allowed':''}
-                        focus:outline-none focus:ring-brand/30"
+          <input type="tel" placeholder="010-0000-0000" value="${r.phone||''}" ${ro?'disabled':''}
+                 class="lib-input col-span-12 md:col-span-4 ${ro?'bg-gray-100 cursor-not-allowed':''}"
                  oninput="onE(${i},'phone',this.value)" aria-label="전화번호">
-
-          <!-- 버튼: 모바일은 다음 줄 전폭, md부터 1칸 고정폭 -->
-          <div class="col-span-12 md:col-span-1 md:w-[4.5rem] w-full shrink-0
-                      flex justify-center md:justify-end gap-2 mt-2 md:mt-0">
-            ${i===0
-              ? `<button class="w-9 h-10 rounded-lg ring-1 ring-brand/15 text-brand/80 hover:bg-brand/5">+</button>`
-              : `<button class="w-9 h-10 rounded-lg ring-1 ring-brand/15 text-brand/80 hover:bg-brand/5">+</button>
-                 <button class="w-9 h-10 rounded-lg ring-1 ring-brand/15 text-brand/80 hover:bg-brand/5">−</button>`}
-          </div>
         `;
+        card.appendChild(inner);
+        form.appendChild(card);
+      });
 
+      // + 참석자 추가 (행 아래에 한 번만)
+      const addBox = document.createElement('button');
+      addBox.type = 'button';
+      addBox.className = 'lib-addbox mt-3';
+      addBox.textContent = '+ 참석자 추가';
+      addBox.onclick = addRow;
+      form.appendChild(addBox);
 
-              form.appendChild(row);
-
-              // 버튼 핸들러 연결
-              const btns = row.querySelectorAll('button');
-              btns[0].onclick = addRow;
-              if (btns[1]) btns[1].onclick = ()=>removeRow(i);
-        });
-
-        // 대표 수령 토글 노출
-        repLabel.classList.toggle('hidden', rows.length < 2);
-        repCheck.checked = rep;
+      // 대표 수령 토글 노출
+      repLabel.classList.toggle('hidden', rows.length < 2);
+      repCheck.checked = rep;
     }
+
 
     function isValidEmail(email){
       return /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,6}$/.test(email);

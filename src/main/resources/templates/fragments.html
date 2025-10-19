@@ -22,8 +22,61 @@
         }
     </script>
     <style>html{scroll-behavior:smooth}</style>
+    <style>
+        /* === Libera Global Theme === */
+        :root{
+          --brand: 123 84 47;      /* 버튼/라인/강조 */
+          --sub:   113 114 122;    /* 서브텍스트 */
+          --bg:    255 207 113;    /* 배경 5% */
+          --cancel:182 119 29;     /* 취소 아이콘 배경 26% */
+        }
+        .lib-page    { background-color: rgba(var(--bg), 0.05); }
+
+        .lib-label   { font-size: .95rem; font-weight: 600; color: rgb(var(--brand)); }
+        .lib-subtext { color: rgb(var(--sub)); }
+
+        .lib-input{
+          width:100%; border:0; border-radius:12px; padding:12px 16px; background:#fff;
+          box-shadow: inset 0 1px 0 rgba(0,0,0,.02);
+          outline: none; --tw-ring-color: rgba(0,0,0,.06);
+        }
+        .lib-input:focus{ box-shadow: 0 0 0 2px rgba(var(--brand), .35); }
+
+        .lib-btn{
+          display:inline-flex; align-items:center; justify-content:center;
+          border-radius:10px; padding:12px 16px; color:#fff;
+          background: rgb(var(--brand));
+          transition: background .15s ease;
+        }
+        .lib-btn:hover{ background: rgba(var(--brand), .9); }
+
+        .lib-addbox{
+          width:100%; text-align:center; padding:12px 0; background:#fff;
+          border:2px dashed rgb(var(--brand)); border-radius:12px; color: rgb(var(--brand));
+        }
+
+        .lib-plus { border:1px solid rgba(var(--brand), .25); color: rgb(var(--brand)); }
+        .lib-minus{ background: rgba(var(--cancel), .26); color: rgb(var(--brand)); }
+
+          /* 카드 강조 */
+          .lib-card{
+            background:#fff; border-radius:16px;
+            box-shadow: 0 6px 16px rgba(0,0,0,.06);
+            border: 1px solid rgba(0,0,0,.08);
+          }
+          /* 카드 우상단 삭제 버튼(−) */
+          .lib-close{
+            position:absolute; top:10px; right:10px;
+            width:32px; height:32px; border-radius:9999px;
+            display:flex; align-items:center; justify-content:center;
+            background: rgba(182,119,29,.26);   /* 요청색 */
+            color: rgb(123,84,47);
+          }
+          .lib-close:hover{ filter: brightness(0.98); }
+    </style>
+
 </head>
-<body class="min-h-screen text-brand bg-black/90">
+<body class="min-h-screen text-brand bg-black/90 lib-page">
 <!-- 배경 -->
 <div class="fixed inset-0 -z-10">
     <div class="absolute inset-0 bg-poster bg-cover bg-center"></div>
