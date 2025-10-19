@@ -25,7 +25,7 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/", "/main", "/rsvp", "/invite",  "/app/**", "/api/**", "/cancel/**", "/poster.jpg", "/h2-console/**").permitAll()
+                        .requestMatchers("/", "/main", "/rsvp", "/invite",  "/app/**", "/api/**", "/cancel/**", "/poster.jpg", "/Libera_program.jpg", "/h2-console/**", "/img/**").permitAll()
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .anyRequest().permitAll()
                 )

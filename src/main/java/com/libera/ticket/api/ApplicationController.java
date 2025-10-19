@@ -6,6 +6,7 @@ import com.libera.ticket.repo.*;
 import com.libera.ticket.service.ApplicationService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -22,8 +23,16 @@ public class ApplicationController {
     private final ApplicationMemberRepo memberRepo;
     private final ApplicationService service;
 
-    @GetMapping("/")
-    public String main() {
+    @Value("${app.event.poster:/img/Libera_poster.jpg}")
+    private String poster; // 정적 파일 경로 or 절대 URL
+
+    @Value("${app.event.program_image:/img/Libera_program.jpg}")
+    private String programImage; // 정적 파일 경로 or 절대 URL
+
+    @GetMapping({"/", "/main"})
+    public String main(Model model) {
+        model.addAttribute("poster", poster);                 // app.event.poster
+        model.addAttribute("programImage", programImage);     // app.event.program_image
         return "index";
     }
 //

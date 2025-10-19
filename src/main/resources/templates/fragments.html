@@ -12,15 +12,13 @@
           theme: {
             extend: {
               colors: { brand: { DEFAULT:'#111827', soft:'#374151', gold:'#d4af37' } },
-              boxShadow: { card: '0 10px 30px rgba(0,0,0,.18)' },
-              backgroundImage: {
-                poster: "url('/poster.jpg')",
-                fade: 'linear-gradient(to bottom, rgba(0,0,0,.35), rgba(0,0,0,.6))'
-              }
+              boxShadow: { card: '0 10px 30px rgba(0,0,0,.18)' }
+              /* backgroundImage.poster/fade 더 이상 사용 안 함 */
             }
           }
         }
     </script>
+
     <style>html{scroll-behavior:smooth}</style>
     <style>
         /* === Libera Global Theme === */
@@ -58,34 +56,36 @@
         .lib-plus { border:1px solid rgba(var(--brand), .25); color: rgb(var(--brand)); }
         .lib-minus{ background: rgba(var(--cancel), .26); color: rgb(var(--brand)); }
 
-          /* 카드 강조 */
-          .lib-card{
-            background:#fff; border-radius:16px;
-            box-shadow: 0 6px 16px rgba(0,0,0,.06);
-            border: 1px solid rgba(0,0,0,.08);
-          }
-          /* 카드 우상단 삭제 버튼(−) */
-          .lib-close{
-            position:absolute; top:10px; right:10px;
-            width:32px; height:32px; border-radius:9999px;
-            display:flex; align-items:center; justify-content:center;
-            background: rgba(182,119,29,.26);   /* 요청색 */
-            color: rgb(123,84,47);
-          }
-          .lib-close:hover{ filter: brightness(0.98); }
+        /* 카드 강조 */
+        .lib-card{
+          background:#fff; border-radius:16px;
+          box-shadow: 0 6px 16px rgba(0,0,0,.06);
+          border: 1px solid rgba(0,0,0,.08);
+        }
+        .lib-close{
+          position:absolute; top:10px; right:10px;
+          width:32px; height:32px; border-radius:9999px;
+          display:flex; align-items:center; justify-content:center;
+          background: rgba(182,119,29,.26);
+          color: rgb(123,84,47);
+        }
+        .lib-close:hover{ filter: brightness(0.98); }
     </style>
-
 </head>
-<body class="min-h-screen text-brand bg-black/90 lib-page">
-<!-- 배경 -->
+
+<!-- ✅ 어두운 배경 제거, 사이트 공통 연한 배경만 유지 -->
+<body class="min-h-screen text-brand lib-page">
+
+<!-- ❌ 배경 포스터/그라데이션 레이어 전부 제거
 <div class="fixed inset-0 -z-10">
-    <div class="absolute inset-0 bg-poster bg-cover bg-center"></div>
-    <div class="absolute inset-0 bg-fade"></div>
+  <div class="absolute inset-0 bg-poster bg-cover bg-center"></div>
+  <div class="absolute inset-0 bg-fade"></div>
 </div>
+-->
 
 <!-- 컨텐츠 -->
 <main class="min-h-screen flex items-center justify-center p-4">
-    <div class="w-full max-w-3xl rounded-2xl bg-white/80 backdrop-blur-xl shadow-card ring-1 ring-white/40">
+    <div class="w-full max-w-3xl rounded-2xl bg-white/90 backdrop-blur-xl shadow-card ring-1 ring-black/10">
         <div class="px-6 py-7 sm:px-10 sm:py-10">
             <header class="mb-6 flex items-center justify-between">
                 <h1 class="text-2xl sm:text-3xl font-semibold tracking-tight text-brand">
@@ -100,7 +100,7 @@
           </span>
             </header>
 
-            <!-- 여기로 페이지별 본문이 들어온다 -->
+            <!-- 페이지별 본문 -->
             <div th:insert="${content}"></div>
 
             <footer class="mt-8 pt-6 border-t border-brand/10 text-xs text-brand/50 text-center">

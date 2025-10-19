@@ -1,6 +1,9 @@
 spring:
   application:
     name: libera-ticket
+  servlet:
+    multipart:
+      max-file-size: 100MB
 
 #  datasource:
 #    url: jdbc:h2:mem:testdb;MODE=PostgreSQL;DB_CLOSE_DELAY=-1
@@ -40,6 +43,10 @@ app:
   base-url: ${APP_BASE_URL:http://localhost:8080}
   result-notice-date: 2025-10-25
   cancel-token-expire-days: 30
+  event:
+    poster: "/img/Libera_poster_resized.jpg"     # 포스터(히어로 배경)
+    program_image: "/img/Libera_program_resized.jpg"  # 프로그램 안내 단일 이미지
+
 
 solapi:
   api-key: ${SOLAPI_API_KEY}
