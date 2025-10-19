@@ -46,3 +46,7 @@ solapi:
   api-secret: ${SOLAPI_API_SECRET}
   from: ${SOLAPI_FROM}
 
+resend:
+  api-key: ${RESEND_API_KEY}
+  from: ${RESEND_FROM}
+

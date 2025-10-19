@@ -22,7 +22,7 @@ public class ApplicationService {
     private final ApplicationMemberRepo memberRepo;
     private final CancelTokenRepo cancelTokenRepo;
     private final SmsService smsService;
-    private final EmailService emailService;
+    private final ResendEmailService resendEmailService;
 
     @Value("${app.base-url}")
     private String baseUrl;
@@ -113,7 +113,7 @@ public class ApplicationService {
                       </p>
                     </div>
                     """.formatted(viewUrl, viewUrl);
-            emailService.sendHtml(repEmail, subject, html);
+            resendEmailService.sendHtml(repEmail, subject, html);
         } catch (Exception e) {
             log.warn("이메일 발송 실패: {}", e.getMessage());
         }
