@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" th:replace="fragments :: layout(~{::body})">
+<body>
+<section>
+    <h2 class="text-2xl font-semibold text-brand mb-3">현장 체크인</h2>
+    <div id="reader" class="rounded-xl overflow-hidden ring-1 ring-black/10 w-full max-w-md"></div>
+    <div id="result" class="mt-4 text-sm"></div>
+</section>
+
+<script src="https://unpkg.com/html5-qrcode"></script>
+<script>
+    const result = document.getElementById('result');
+    function mark(text, cls){ result.innerHTML = `<div class="rounded-lg p-3 ${cls}">${text}</div>`; }
+
+    function extractToken(decodedText){
+      try{
+        const u = new URL(decodedText, location.origin);
+        const m = u.pathname.match(/\/t\/([A-Za-z0-9]+)/);
+        if(m) return m[1];
+      }catch(e){
+        const m = decodedText.match(/\/t\/([A-Za-z0-9]+)/);
+        if(m) return m[1];
+      }
+      // QR에 토큰만 직접 넣은 경우
+      if(/^[A-Za-z0-9]+$/.test(decodedText)) return decodedText;
+      return null;
+    }
+
+    async function checkin(token){
+      const r = await fetch(`/admin/checkin/${token}`, {method:'POST'});
+      const txt = await r.text();
+      if (txt.startsWith('OK')) mark('입장 처리 완료', 'bg-emerald-50 ring-1 ring-emerald-200 text-emerald-800');
+      else if (txt.startsWith('ALREADY')) mark('이미 사용된 티켓', 'bg-yellow-50 ring-1 ring-yellow-200 text-yellow-800');
+      else if (txt.startsWith('CANCELLED')) mark('취소된 티켓', 'bg-red-50 ring-1 ring-red-200 text-red-700');
+      else mark('유효하지 않은 티켓', 'bg-red-50 ring-1 ring-red-200 text-red-700');
+    }
+
+    const qr = new Html5Qrcode("reader");
+    Html5Qrcode.getCameras().then(devs=>{
+      const camId = (devs[0]||{}).id;
+      qr.start({facingMode:"environment", deviceId: camId}, {fps:10, qrbox: {width:240,height:240}}, async (text)=>{
+        const token = extractToken(text);
+        if(token){ await checkin(token); }
+      });
+    });
+</script>
+</body>
+</html>

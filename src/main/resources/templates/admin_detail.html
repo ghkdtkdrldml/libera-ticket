@@ -19,6 +19,24 @@
                 <div th:text="${app.repEmail}"></div>
                 <div th:text="${app.repPhone}"></div>
             </div>
+            <!-- 발급 상태 표시 -->
+            <div class="mt-4 text-sm">
+                <span class="text-brand/60">티켓 발급 상태:</span>
+                <b th:text="${ticketCount > 0 ? '발급됨 (' + ticketCount + '매)' : '미발급'}"></b>
+            </div>
+
+            <!-- QR 티켓 발급 버튼 -->
+            <form th:action="@{'/admin/applications/' + ${app.applicationId} + '/issue-tickets'}" method="post"
+                  onsubmit="return confirm('이 응모의 참석자 전원에게 QR 티켓을 발급하고 메일/문자를 전송합니다. 진행할까요?');"
+                  class="mt-3">
+                <button type="submit"
+                        th:disabled="${ticketCount > 0}"
+                        th:classappend="${ticketCount > 0} ? ' opacity-50 cursor-not-allowed' : ''"
+                        class="px-4 py-2 rounded-lg bg-brand text-white hover:bg-brand/90">
+                    <span th:text="${ticketCount > 0 ? '이미 발급됨' : 'QR 티켓 발급'}"></span>
+                </button>
+            </form>
+
             <form th:if="${app.status.name() == 'SUBMITTED'}"
                   th:action="@{'/admin/applications/' + ${app.applicationId} + '/cancel'}" method="post"
                   onsubmit="return confirm('해당 응모를 취소할까요?');" class="mt-3">

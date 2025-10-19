@@ -4,7 +4,9 @@ import com.libera.ticket.domain.AppStatus;
 import com.libera.ticket.domain.DomainType;
 import com.libera.ticket.repo.ApplicationMemberRepo;
 import com.libera.ticket.repo.ApplicationRepo;
+import com.libera.ticket.repo.TicketRepo;
 import com.libera.ticket.service.ApplicationService;
+import com.libera.ticket.service.TicketIssueService;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -23,7 +25,9 @@ public class AdminController {
 
     private final ApplicationRepo appRepo;
     private final ApplicationMemberRepo memberRepo;
+    private final TicketRepo ticketRepo;
     private final ApplicationService service;
+    private final TicketIssueService ticketIssue;
 
     @GetMapping
     public String dashboard(
@@ -49,8 +53,11 @@ public class AdminController {
     public String detail(@PathVariable UUID id, Model model) {
         var app = appRepo.findById(id).orElseThrow();
         var members = memberRepo.findByApplication_ApplicationIdOrderByRowOrderAsc(id);
+        long ticketCount = ticketRepo.countByApplication_ApplicationId(id);
+
         model.addAttribute("app", app);
         model.addAttribute("members", members);
+        model.addAttribute("ticketCount", ticketCount);
         return "admin_detail";
     }
 
@@ -116,6 +123,12 @@ public class AdminController {
             res.setHeader("Content-Disposition", "attachment; filename*=UTF-8''"+filename);
             wb.write(res.getOutputStream());
         }
+    }
+
+    @PostMapping("/applications/{id}/issue-tickets")
+    public String issue(@PathVariable UUID id){
+        ticketIssue.issueForApplicationId(id);
+        return "redirect:/admin/applications/" + id;
     }
 
 }
