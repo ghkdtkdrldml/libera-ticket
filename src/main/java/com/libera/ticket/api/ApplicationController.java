@@ -22,22 +22,22 @@ public class ApplicationController {
     private final ApplicationMemberRepo memberRepo;
     private final ApplicationService service;
 
-//    @GetMapping("/")
-//    public String main() {
-//        return "index";
-//    }
-
-    // 공지 페이지
     @GetMapping("/")
-    public String notice() {
-        return "notice";
-    }
-
-    // 기존 메인 페이지
-    @GetMapping("/main")
     public String main() {
-        return "index"; // 기존 메인 페이지 템플릿 이름
+        return "index";
     }
+//
+//    // 공지 페이지
+//    @GetMapping("/")
+//    public String notice() {
+//        return "notice";
+//    }
+//
+//    // 기존 메인 페이지
+//    @GetMapping("/main")
+//    public String main() {
+//        return "index"; // 기존 메인 페이지 템플릿 이름
+//    }
 
     @GetMapping("/rsvp")
     public String rsvp() {
