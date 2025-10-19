@@ -3,14 +3,51 @@
 <body>
 <section>
     <h2 class="text-2xl font-semibold text-brand mb-3">현장 체크인</h2>
-    <div id="reader" class="rounded-xl overflow-hidden ring-1 ring-black/10 w-full max-w-md"></div>
+
+    <!-- 컨트롤 -->
+    <div class="flex flex-col gap-2 mb-3">
+        <div class="flex items-center gap-2">
+            <select id="cameraSel" class="rounded-lg ring-1 ring-black/10 px-3 py-2 min-w-[200px] hidden"></select>
+            <button id="startBtn" class="px-3 py-2 rounded-lg bg-brand text-white">카메라 시작</button>
+            <button id="stopBtn" class="px-3 py-2 rounded-lg ring-1 ring-black/10 hidden">중지</button>
+        </div>
+        <div class="text-sm text-brand/60">
+            카메라가 없다면 아래 “이미지로 스캔”을 사용하세요.
+        </div>
+    </div>
+
+    <!-- 카메라 미리보기 -->
+    <div id="reader" class="rounded-xl overflow-hidden ring-1 ring-black/10 w-full max-w-md aspect-square bg-black/5"></div>
+
+    <!-- 폴백: 이미지 스캔 -->
+    <div class="mt-4 lib-card p-4">
+        <div class="text-sm text-brand/80 mb-2">폴백: 이미지로 스캔</div>
+        <input id="fileInput" type="file" accept="image/*" class="text-sm">
+        <div class="text-xs text-brand/60 mt-1">QR 코드가 찍힌 이미지(jpg/png)를 선택하면 인식합니다.</div>
+    </div>
+
     <div id="result" class="mt-4 text-sm"></div>
 </section>
 
 <script src="https://unpkg.com/html5-qrcode"></script>
 <script>
-    const result = document.getElementById('result');
-    function mark(text, cls){ result.innerHTML = `<div class="rounded-lg p-3 ${cls}">${text}</div>`; }
+    const readerEl = document.getElementById('reader');
+    const resultEl = document.getElementById('result');
+    const cameraSel = document.getElementById('cameraSel');
+    const startBtn  = document.getElementById('startBtn');
+    const stopBtn   = document.getElementById('stopBtn');
+    const fileInput = document.getElementById('fileInput');
+
+    let qr;
+    let currentCamId = null;
+    let running = false;
+
+    function mark(html, cls){
+      resultEl.innerHTML = `<div class="rounded-lg p-3 ${cls||'bg-emerald-50 ring-1 ring-emerald-200 text-emerald-800'}">${html}</div>`;
+    }
+    function markInfo(msg){ mark(msg, 'bg-slate-50 ring-1 ring-black/10 text-slate-700'); }
+    function markWarn(msg){ mark(msg, 'bg-yellow-50 ring-1 ring-yellow-200 text-yellow-800'); }
+    function markErr(msg){  mark(msg, 'bg-red-50 ring-1 ring-red-200 text-red-700'); }
 
     function extractToken(decodedText){
       try{
@@ -21,28 +58,106 @@
         const m = decodedText.match(/\/t\/([A-Za-z0-9]+)/);
         if(m) return m[1];
       }
-      // QR에 토큰만 직접 넣은 경우
-      if(/^[A-Za-z0-9]+$/.test(decodedText)) return decodedText;
+      if(/^[A-Za-z0-9]+$/.test(decodedText)) return decodedText; // 토큰만 들어간 QR도 허용
       return null;
     }
-
     async function checkin(token){
-      const r = await fetch(`/admin/checkin/${token}`, {method:'POST'});
+      const r = await fetch(`/admin/checkin/${token}`, { method:'POST' });
       const txt = await r.text();
-      if (txt.startsWith('OK')) mark('입장 처리 완료', 'bg-emerald-50 ring-1 ring-emerald-200 text-emerald-800');
-      else if (txt.startsWith('ALREADY')) mark('이미 사용된 티켓', 'bg-yellow-50 ring-1 ring-yellow-200 text-yellow-800');
-      else if (txt.startsWith('CANCELLED')) mark('취소된 티켓', 'bg-red-50 ring-1 ring-red-200 text-red-700');
-      else mark('유효하지 않은 티켓', 'bg-red-50 ring-1 ring-red-200 text-red-700');
+      if (txt.startsWith('OK'))         mark('입장 처리 완료');
+      else if (txt.startsWith('ALREADY')) markWarn('이미 사용된 티켓');
+      else if (txt.startsWith('CANCELLED')) markErr('취소된 티켓');
+      else                               markErr('유효하지 않은 티켓');
     }
 
-    const qr = new Html5Qrcode("reader");
-    Html5Qrcode.getCameras().then(devs=>{
-      const camId = (devs[0]||{}).id;
-      qr.start({facingMode:"environment", deviceId: camId}, {fps:10, qrbox: {width:240,height:240}}, async (text)=>{
-        const token = extractToken(text);
+    async function start(camId){
+      try{
+        if(!qr) qr = new Html5Qrcode("reader", { verbose: false });
+        await qr.start(
+          { deviceId: { exact: camId } },
+          { fps: 10, qrbox: { width: 240, height: 240 } },
+          async (text) => {
+            const token = extractToken(text);
+            if(token){ await checkin(token); }
+          },
+          (errMsg) => { /* decode 실패 콜백은 무시 가능 */ }
+        );
+        running = true;
+        startBtn.classList.add('hidden');
+        stopBtn.classList.remove('hidden');
+      }catch(e){
+        // 퍼미션 거부 또는 장치 소실 등
+        markErr('카메라 시작 실패: ' + (e?.name || e));
+        console.error(e);
+      }
+    }
+
+    async function stop(){
+      if(qr && running){
+        await qr.stop();
+        await qr.clear();
+        running = false;
+        startBtn.classList.remove('hidden');
+        stopBtn.classList.add('hidden');
+      }
+    }
+
+    async function initCameras(){
+      try{
+        const devs = await Html5Qrcode.getCameras();
+        if(!devs || devs.length === 0){
+          cameraSel.classList.add('hidden');
+          markInfo('카메라 장치를 찾을 수 없습니다. “이미지로 스캔”을 사용하세요.');
+          return;
+        }
+        // 후면 카메라 우선 선택
+        let idx = devs.findIndex(d => /back|rear|environment/i.test(d.label));
+        if(idx < 0) idx = 0;
+        currentCamId = devs[idx].id;
+
+        // UI 채우기
+        cameraSel.innerHTML = devs.map(d => `<option value="${d.id}">${d.label || 'Camera'}</option>`).join('');
+        cameraSel.value = currentCamId;
+        cameraSel.classList.remove('hidden');
+
+        // 자동 시작(권한 요청 포함)
+        await start(currentCamId);
+      }catch(e){
+        // 여기서 나는 에러가 바로 너가 본 것: NotFoundError(장치 없음) / NotAllowedError(권한 거부)
+        if(e?.name === 'NotAllowedError'){
+          markWarn('카메라 권한이 거부되었습니다. 브라우저 권한 설정에서 카메라를 허용해 주세요.');
+        }else if(e?.name === 'NotFoundError'){
+          markInfo('카메라 장치가 없습니다. “이미지로 스캔” 기능을 이용해 주세요.');
+        }else{
+          markErr('카메라 초기화 실패: ' + (e?.name || e));
+        }
+        console.error(e);
+      }
+    }
+
+    // 이벤트
+    startBtn.onclick = async ()=>{ if(currentCamId) await start(currentCamId); else await initCameras(); };
+    stopBtn.onclick  = stop;
+    cameraSel.onchange = async (e)=>{ currentCamId = e.target.value; await stop(); await start(currentCamId); };
+
+    // 폴백: 이미지 파일 스캔
+    fileInput.onchange = async (e)=>{
+      const f = e.target.files?.[0];
+      if(!f) return;
+      try{
+        if(!qr) qr = new Html5Qrcode("reader", { verbose: false });
+        const decodedText = await qr.scanFile(f, true);
+        const token = extractToken(decodedText);
         if(token){ await checkin(token); }
-      });
-    });
+        else { markErr('QR을 인식했지만 티켓 토큰을 찾지 못했습니다.'); }
+      }catch(err){
+        markErr('이미지 인식 실패: ' + (err?.message || err));
+        console.error(err);
+      }
+    };
+
+    // 초기 진입
+    initCameras();
 </script>
 </body>
 </html>
