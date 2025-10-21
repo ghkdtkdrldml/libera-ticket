@@ -82,13 +82,14 @@ public class ApplicationService {
         cancelTokenRepo.save(ct);
 
         String cancelUrl = baseUrl + "/cancel/" + ct.getToken();
-        String msg = "응모가 접수되었습니다. " + resultNoticeDate + "에 결과를 발송할 예정입니다.";
+        String msg = "초대권 신청이 정상적으로 완료되었습니다.\n" +
+                "확인 메일 및 문자가 발송되었으니, 문자나 메일을 수신하지 못하신 경우 스팸함 확인하신 후 스팸해제 진행 부탁드립니다.";
         // 대표 연락처(1행)로만 발송
         var repEmail = req.members().get(0).email();
         var repPhone = req.members().get(0).phone(); // 010-1234-5678 형태
         // … 기존 저장 로직 후
         try {
-            smsService.sendSms(repPhone,"리베라 초대권 응모 접수 완료!\n결과 안내: " + System.getenv("APP_RESULT_NOTICE_DATE"));
+            smsService.sendSms(repPhone,"[Libera] 초대권 신청이 완료되었습니다.");
         } catch (Exception e) {
             log.warn("SMS 발송 실패: {}", e.getMessage());
         }
@@ -98,7 +99,7 @@ public class ApplicationService {
             String viewUrl = baseUrl + "/app/" + id; // ✅ 공개 조회 링크
 
             // 메일 HTML (간결한 버튼)
-            String subject = "리베라 초대권 응모 접수 완료";
+            String subject = "[Libera] 초대권 신청 완료";
             String html = """
                     <div style="font-family:pretendard,Apple SD Gothic Neo,Roboto,Noto Sans,Arial,sans-serif;line-height:1.6;color:#111827">
                       <h2 style="margin:0 0 8px 0;font-size:18px">응모가 접수되었습니다.</h2>
@@ -125,6 +126,14 @@ public class ApplicationService {
     public String cancelByToken(UUID token) {
         var ct = cancelTokenRepo.findById(token).orElseThrow();
         var app = ct.getApplication();
+        app.setStatus(AppStatus.CANCELLED);
+        applicationRepo.save(app);
+        return "응모가 취소되었습니다.";
+    }
+
+    @Transactional
+    public String cancelById(UUID applicationId){
+        var app = applicationRepo.findById(applicationId).orElseThrow();
         app.setStatus(AppStatus.CANCELLED);
         applicationRepo.save(app);
         return "응모가 취소되었습니다.";

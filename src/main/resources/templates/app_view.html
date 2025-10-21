@@ -11,13 +11,9 @@
     <div th:unless="${notfound}">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
             <div class="rounded-xl ring-1 ring-brand/10 p-4 bg-white/70">
-                <div class="text-sm"><span class="text-brand/60">응모 ID:</span> <span th:text="${app.applicationId}"></span></div>
-                <div class="text-sm"><span class="text-brand/60">응모 시각:</span> <span th:text="${#temporals.format(app.createdAt,'yyyy-MM-dd HH:mm')}"></span></div>
                 <div class="text-sm"><span class="text-brand/60">유형:</span> <span th:text="${app.domainType.ko()}"></span></div>
                 <div class="text-sm"><span class="text-brand/60">연주자:</span> <span th:text="${app.performer==null?'':app.performer.name}"></span></div>
-                <div class="text-sm"><span class="text-brand/60">상태:</span> <span th:text="${app.status.ko()}"></span></div>
                 <div class="text-sm"><span class="text-brand/60">총 인원:</span> <span th:text="${app.totalCount}"></span></div>
-                <div class="text-sm"><span class="text-brand/60">대표 수령:</span> <span th:text="${app.repDelivery}"></span></div>
                 <div class="text-sm"><span class="text-brand/60">대표 연락처:</span>
                     <div th:text="${app.repName}"></div>
                     <div th:text="${app.repEmail}"></div>
@@ -37,8 +33,10 @@
             </div>
         </div>
 
-        <!-- (선택) 취소 링크가 있다면 여기에 배치 -->
-        <!-- <a th:href="@{'/cancel/' + ${app.applicationId}}" class="px-4 py-2 rounded-xl ring-1 ring-red-200 text-red-700">응모 취소</a> -->
+        <form th:action="@{'/cancel/' + ${app.applicationId}}" method="post"
+              onsubmit="return confirm('해당 응모를 취소할까요?');" class="mt-3">
+            <button class="px-4 py-2 rounded-lg ring-1 ring-red-200 text-red-700 hover:bg-red-50">신청 취소</button>
+        </form>
     </div>
 
     <div class="mt-6 text-center">

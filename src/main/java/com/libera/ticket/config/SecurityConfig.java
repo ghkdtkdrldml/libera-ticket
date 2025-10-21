@@ -25,12 +25,13 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/", "/main", "/rsvp", "/invite",  "/app/**", "/api/**", "/cancel/**", "/poster.jpg", "/Libera_program.jpg", "/h2-console/**", "/img/**").permitAll()
+                        .requestMatchers("/", "/main", "/rsvp", "/invite",  "/app/**", "/api/**", "/cancel/**", "/poster.jpg", "/Libera_program.jpg", "/h2-console/**", "/img/**", "/legal/**").permitAll()
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .anyRequest().permitAll()
                 )
                 .httpBasic(Customizer.withDefaults())
-                .headers(h -> h.frameOptions(f -> f.disable())); // H2 콘솔용
+                .headers(h -> h.frameOptions(fo -> fo.sameOrigin()));
+
         return http.build();
     }
 

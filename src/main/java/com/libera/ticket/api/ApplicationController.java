@@ -79,6 +79,13 @@ public class ApplicationController {
         return Map.of("status", "CANCELLED", "message", msg);
     }
 
+    @PostMapping("/cancel/{applicationId}")
+    @ResponseBody
+    public Map<String, String> cancelById(@PathVariable UUID applicationId) {
+        String msg = service.cancelById(applicationId);
+        return Map.of("status", "CANCELLED", "message", msg);
+    }
+
     // CSV Export
     @GetMapping(value = "/api/export/csv", produces = "text/csv")
     @ResponseBody
