@@ -136,14 +136,14 @@
         card.className = 'relative lib-card p-4 md:p-5';
 
         // 2번째 카드부터 우상단 '−'
-        if(i>0){
+        if (i > 0) {
           const del = document.createElement('button');
           del.type = 'button';
-          del.className = 'lib-close';
-          del.setAttribute('aria-label','참석자 삭제');
+          del.className = 'lib-close absolute top-2 right-2';
+          del.setAttribute('aria-label', '참석자 삭제');
           del.title = '참석자 삭제';
-          del.textContent = 'x';
-          del.onclick = ()=>removeRow(i);
+          del.innerHTML = `<img src="/img/close_icon.png" alt="삭제" class="w-4 h-4 opacity-70 hover:opacity-100">`;
+          del.onclick = () => removeRow(i);
           card.appendChild(del);
         }
 
