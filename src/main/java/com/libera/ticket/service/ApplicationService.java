@@ -89,7 +89,11 @@ public class ApplicationService {
         var repPhone = req.members().get(0).phone(); // 010-1234-5678 형태
         // … 기존 저장 로직 후
         try {
-            smsService.sendSms(repPhone,"[Libera] 초대권 신청이 완료되었습니다.");
+            if (domainType == DomainType.INVITE) {
+                smsService.sendSms(repPhone, "[Libera] 초대권 신청이 완료되었습니다.");
+            }else{
+                smsService.sendSms(repPhone, "[Libera] 티켓 응모가 완료되었습니다.");
+            }
         } catch (Exception e) {
             log.warn("SMS 발송 실패: {}", e.getMessage());
         }
@@ -98,23 +102,43 @@ public class ApplicationService {
 
             String viewUrl = baseUrl + "/app/" + id; // ✅ 공개 조회 링크
 
-            // 메일 HTML (간결한 버튼)
-            String subject = "[Libera] 초대권 신청 완료";
-            String html = """
-                    <div style="font-family:pretendard,Apple SD Gothic Neo,Roboto,Noto Sans,Arial,sans-serif;line-height:1.6;color:#111827">
-                      <h2 style="margin:0 0 8px 0;font-size:18px">응모가 접수되었습니다.</h2>
-                      <p style="margin:0 0 16px 0;color:#4b5563">응모 상세와 취소는 아래 버튼으로 확인하실 수 있습니다.</p>
-                      <p style="margin:24px 0">
-                        <a href="%s" style="display:inline-block;background:#111827;color:#fff;text-decoration:none;
-                           padding:12px 18px;border-radius:10px">내 응모내역 보기</a>
-                      </p>
-                      <p style="margin:24px 0 0 0;font-size:12px;color:#6b7280">
-                        본 메일은 발신 전용입니다. 링크가 열리지 않으면 아래 URL을 복사해 브라우저 주소창에 붙여넣어 주세요.<br/>
-                        %s
-                      </p>
-                    </div>
-                    """.formatted(viewUrl, viewUrl);
-            resendEmailService.sendHtml(repEmail, subject, html);
+            if (domainType == DomainType.INVITE) {
+                // 메일 HTML (간결한 버튼)
+                String subject = "[Libera] 초대권 신청 완료";
+                String html = """
+                        <div style="font-family:pretendard,Apple SD Gothic Neo,Roboto,Noto Sans,Arial,sans-serif;line-height:1.6;color:#111827">
+                          <h2 style="margin:0 0 8px 0;font-size:18px">응모가 접수되었습니다.</h2>
+                          <p style="margin:0 0 16px 0;color:#4b5563">응모 상세와 취소는 아래 버튼으로 확인하실 수 있습니다.</p>
+                          <p style="margin:24px 0">
+                            <a href="%s" style="display:inline-block;background:#111827;color:#fff;text-decoration:none;
+                               padding:12px 18px;border-radius:10px">내 응모내역 보기</a>
+                          </p>
+                          <p style="margin:24px 0 0 0;font-size:12px;color:#6b7280">
+                            본 메일은 발신 전용입니다. 링크가 열리지 않으면 아래 URL을 복사해 브라우저 주소창에 붙여넣어 주세요.<br/>
+                            %s
+                          </p>
+                        </div>
+                        """.formatted(viewUrl, viewUrl);
+                resendEmailService.sendHtml(repEmail, subject, html);
+            }
+            else{
+                String subject = "[Libera] 티켓 응모 완료";
+                String html = """
+                        <div style="font-family:pretendard,Apple SD Gothic Neo,Roboto,Noto Sans,Arial,sans-serif;line-height:1.6;color:#111827">
+                          <h2 style="margin:0 0 8px 0;font-size:18px">응모가 접수되었습니다.</h2>
+                          <p style="margin:0 0 16px 0;color:#4b5563">응모 상세와 취소는 아래 버튼으로 확인하실 수 있습니다.</p>
+                          <p style="margin:24px 0">
+                            <a href="%s" style="display:inline-block;background:#111827;color:#fff;text-decoration:none;
+                               padding:12px 18px;border-radius:10px">내 응모내역 보기</a>
+                          </p>
+                          <p style="margin:24px 0 0 0;font-size:12px;color:#6b7280">
+                            본 메일은 발신 전용입니다. 링크가 열리지 않으면 아래 URL을 복사해 브라우저 주소창에 붙여넣어 주세요.<br/>
+                            %s
+                          </p>
+                        </div>
+                        """.formatted(viewUrl, viewUrl);
+                resendEmailService.sendHtml(repEmail, subject, html);
+            }
         } catch (Exception e) {
             log.warn("이메일 발송 실패: {}", e.getMessage());
         }

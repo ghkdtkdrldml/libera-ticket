@@ -20,11 +20,10 @@
 <section class="pb-10">
     <!-- 상단: About / Program 버튼 -->
     <div class="flex justify-center gap-3 mb-6">
-        <button type="button"
-                class="px-5 py-2 rounded-lg ring-1 ring-brand/30 text-brand font-medium hover:bg-brand/5 transition"
-                onclick="openAbout()">
+        <a href="/about"
+           class="px-5 py-2 rounded-lg ring-1 ring-brand/30 text-brand font-medium hover:bg-brand/5 transition">
             About Libera
-        </button>
+        </a>
         <button type="button"
                 class="px-5 py-2 rounded-lg bg-brand text-white font-medium hover:bg-brand/90 transition"
                 onclick="openProgram()">
@@ -60,27 +59,6 @@
     </div>
 </section>
 
-<!-- 🎵 About Libera 모달 -->
-<div id="aboutModal" class="fixed inset-0 z-50 hidden">
-    <div class="absolute inset-0 bg-black/70" onclick="closeAbout()"></div>
-    <div class="absolute inset-0 flex items-center justify-center p-4">
-        <div class="w-full max-w-lg bg-white rounded-2xl shadow-xl p-6 ring-1 ring-black/10">
-            <h3 class="text-xl font-semibold text-brand mb-4 text-center">We are amateurs: Passion leads us.</h3>
-            <p class="text-sm text-neutral-700 leading-relaxed whitespace-pre-line text-center">
-                리베라 앙상블은 지휘자부터 합창단원, 반주자까지
-                구성원 모두가 아마추어로 이루어진 음악 단체입니다.
-                달에 한 번의 시간으로 스무 번째 날,
-                순수한 흥미와 열정으로 닿은 우리들만의 첫 연주에 여러분을 초대합니다.
-            </p>
-            <div class="mt-5 text-center">
-                <button type="button"
-                        class="px-4 py-2 rounded-lg ring-1 ring-brand/30 text-brand hover:bg-brand/5"
-                        onclick="closeAbout()">닫기</button>
-            </div>
-        </div>
-    </div>
-</div>
-
 <!-- 프로그램 이미지 모달 -->
 <div id="programModal" class="fixed inset-0 z-50 hidden">
     <div class="absolute inset-0 bg-black/70" onclick="closeProgram()"></div>
@@ -101,8 +79,7 @@
 <script th:inline="javascript">
     function openProgram(){ document.getElementById('programModal').classList.remove('hidden'); }
     function closeProgram(){ document.getElementById('programModal').classList.add('hidden'); }
-    function openAbout(){ document.getElementById('aboutModal').classList.remove('hidden'); }
-    function closeAbout(){ document.getElementById('aboutModal').classList.add('hidden'); }
+
 </script>
 </body>
 </html>

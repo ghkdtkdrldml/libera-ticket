@@ -242,7 +242,7 @@
       const body = { domainType:'RSVP', performerName:null, isRepDelivery:rep, consentAgreed: true, members:rows };
       const res = await fetch('/api/applications',{ method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body) });
       if(res.ok){
-        alert('성공적으로 응모되었습니다!\n10월 25일 토요일에 응모 결과가 기재주신 연락처로 발송예정입니다. 감사합니다.');
+        alert('성공적으로 응모되었습니다!\n11월 1일에 응모 결과가 기재주신 연락처로 발송예정입니다. 감사합니다.');
         location.href='/';
       } else {
         alert('오류: ' + await res.text());
