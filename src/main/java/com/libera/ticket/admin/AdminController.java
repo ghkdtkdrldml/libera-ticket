@@ -11,10 +11,12 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -34,16 +36,35 @@ public class AdminController {
             @RequestParam(required = false) String q,
             @RequestParam(required = false) DomainType type,
             @RequestParam(required = false) AppStatus status,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime start,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime end,
+            @RequestParam(required = false, defaultValue = "desc") String dir,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size,
             Model model
     ) {
-        var pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
-        var result = appRepo.search(q, type, status, pageable);
+        // 종료일 포함 보정
+        if (end != null) end = end.withSecond(59).withNano(999_999_999);
+
+        Sort sort = Sort.by("createdAt");
+        sort = "asc".equalsIgnoreCase(dir) ? sort.ascending() : sort.descending();
+
+
+        var pageable = PageRequest.of(page, size, sort);
+        var result = appRepo.search(q, type, status, start, end, pageable);
+
+        // ✅ 총 신청 인원(= totalCount 합계)
+        long totalApplicants = appRepo.sumTotalCount(q, type, status, start, end);
+
         model.addAttribute("page", result);
         model.addAttribute("q", q);
         model.addAttribute("type", type);
         model.addAttribute("status", status);
+        model.addAttribute("start", start);
+        model.addAttribute("end", end);
+        model.addAttribute("dir", dir);
+        model.addAttribute("totalApplicants", totalApplicants);
+
         model.addAttribute("types", DomainType.values());
         model.addAttribute("statuses", AppStatus.values());
         return "admin";

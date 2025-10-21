@@ -4,23 +4,74 @@
 <section>
     <h2 class="text-2xl font-semibold text-brand mb-4">관리자 대시보드</h2>
 
-    <form method="get" class="grid grid-cols-1 md:grid-cols-12 gap-3 mb-4">
-        <input type="text" name="q" placeholder="이름/이메일/전화/연주자 검색" th:value="${q}"
-               class="col-span-12 md:col-span-6 rounded-xl ring-1 ring-brand/15 px-4 py-2">
-        <select name="type" class="col-span-6 md:col-span-3 rounded-xl ring-1 ring-brand/15 px-3 py-2">
-            <option th:selected="${type == null}" value="">전체 유형</option>
-            <option th:each="t : ${types}" th:value="${t.name()}" th:selected="${type==t}" th:text="${t.ko()}"></option>
-        </select>
+    <form method="get" class="grid grid-cols-1 md:grid-cols-12 gap-x-3 gap-y-2 mb-4">
 
-        <select name="status" class="col-span-6 md:col-span-2 rounded-xl ring-1 ring-brand/15 px-3 py-2">
-            <option th:selected="${status == null}" value="">전체 상태</option>
-            <option th:each="s : ${statuses}" th:value="${s.name()}" th:selected="${status==s}" th:text="${s.ko()}"></option>
-        </select>
-        <button class="col-span-12 md:col-span-1 rounded-xl bg-brand text-white px-4">검색</button>
-        <a href="/admin/export/xlsx" class="col-span-12 md:col-span-0 rounded-xl ring-1 ring-brand/15 px-4 py-2 text-center">엑셀다운</a>
+        <!-- 1행: 검색어 / 유형 / 상태 -->
+        <div class="md:col-span-6 flex flex-col">
+            <span class="text-xs text-brand/60 mb-1">검색어</span>
+            <input type="text" name="q" placeholder="이름/이메일/전화/연주자 검색" th:value="${q}"
+                   class="w-full rounded-xl ring-1 ring-brand/15 px-4 py-2" />
+        </div>
 
+        <div class="md:col-span-3 flex flex-col">
+            <span class="text-xs text-brand/60 mb-1">유형</span>
+            <select name="type" class="w-full rounded-xl ring-1 ring-brand/15 px-3 py-2">
+                <option th:selected="${type == null}" value="">전체 유형</option>
+                <option th:each="t : ${types}" th:value="${t.name()}" th:selected="${type==t}" th:text="${t.ko()}"></option>
+            </select>
+        </div>
+
+        <div class="md:col-span-3 flex flex-col">
+            <span class="text-xs text-brand/60 mb-1">상태</span>
+            <select name="status" class="w-full rounded-xl ring-1 ring-brand/15 px-3 py-2">
+                <option th:selected="${status == null}" value="">전체 상태</option>
+                <option th:each="s : ${statuses}" th:value="${s.name()}" th:selected="${status==s}" th:text="${s.ko()}"></option>
+            </select>
+        </div>
+
+        <!-- 2행: 시작/종료/정렬/버튼 -->
+        <div class="md:col-span-4 flex flex-col">
+            <span class="text-xs text-brand/60 mb-1">시작 시각</span>
+            <input type="datetime-local" name="start" th:value="${start}"
+                   class="w-full rounded-xl ring-1 ring-brand/15 px-3 py-2" />
+        </div>
+
+        <div class="md:col-span-4 flex flex-col">
+            <span class="text-xs text-brand/60 mb-1">종료 시각</span>
+            <input type="datetime-local" name="end" th:value="${end}"
+                   class="w-full rounded-xl ring-1 ring-brand/15 px-3 py-2" />
+        </div>
+
+        <div class="md:col-span-2 flex flex-col">
+            <span class="text-xs text-brand/60 mb-1">정렬</span>
+            <select name="dir" class="w-full rounded-xl ring-1 ring-brand/15 px-3 py-2">
+                <option th:selected="${dir == null || dir == 'desc'}" value="desc">최신순</option>
+                <option th:selected="${dir == 'asc'}" value="asc">오래된순</option>
+            </select>
+        </div>
+
+
+        <!-- ✅ 검색 버튼은 같은 줄(2행) 끝에 위치 -->
+        <div class="md:col-span-2 flex items-end">
+            <button class="w-full rounded-xl bg-brand text-white px-4 py-2">검색</button>
+        </div>
+
+        <!-- ✅ 엑셀다운만 한 칸 아래 (3행 전체) -->
+        <div class="md:col-span-12 flex justify-end">
+            <a th:href="@{|/admin/export/xlsx?q=${q}&type=${type}&status=${status}&start=${start}&end=${end}&dir=${dir}|}"
+               class="rounded-xl ring-1 ring-brand/15 px-5 py-2 text-center hover:bg-brand/5 transition">
+                엑셀다운
+            </a>
+        </div>
     </form>
 
+    <div class="mb-3 grid grid-cols-2 md:grid-cols-4 gap-2">
+        <div class="rounded-xl bg-white ring-1 ring-brand/10 px-4 py-3">
+            <div class="text-xs text-brand/60">총 신청 인원 수</div>
+            <div class="text-lg font-semibold" th:text="${totalApplicants}">0</div>
+        </div>
+        <!-- 원하면 더 추가: 총 응모건수, 취소건수 등 -->
+    </div>
     <div class="overflow-x-auto rounded-xl ring-1 ring-brand/10">
         <table class="min-w-full text-sm table-auto">
             <thead class="bg-gray-50 text-brand/80">
@@ -31,6 +82,7 @@
                 <th class="px-4 py-3 text-left whitespace-nowrap min-w-[120px]">연주자</th>
                 <th class="px-4 py-3 text-left whitespace-nowrap min-w-[90px]">상태</th>
                 <th class="px-4 py-3 text-center whitespace-nowrap min-w-[70px]">인원</th>
+                <th class="px-4 py-3 text-center whitespace-nowrap min-w-[90px]">대표수령</th>
                 <th class="px-4 py-3 text-left whitespace-nowrap min-w-[220px]">대표수령자</th>
                 <th class="px-4 py-3 text-center whitespace-nowrap min-w-[110px]">액션</th>
             </tr>
@@ -46,6 +98,11 @@
                 <td class="px-3 py-2" th:text="${a.performer==null?'':a.performer.name}"></td>
                 <td class="px-3 py-2" th:text="${a.status.ko()}"></td>
                 <td class="px-3 py-2 text-center" th:text="${a.totalCount}"></td>
+                <!-- ✅ 대표수령여부 -->
+                <td class="px-3 py-2 text-center">
+                    <span th:if="${a.repDelivery}" class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-green-50 ring-1 ring-green-200 text-green-700">✓</span>
+                    <span th:if="${!a.repDelivery}" class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-gray-50 ring-1 ring-gray-200 text-gray-500">–</span>
+                </td>
                 <td class="px-3 py-2">
                     <div th:text="${a.repName}"></div>
                     <div class="text-xs text-brand/60" th:text="${a.repEmail}"></div>
