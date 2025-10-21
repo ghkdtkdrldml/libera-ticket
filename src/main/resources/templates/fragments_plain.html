@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Libera Ticket</title>
 
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
     <!-- Tailwind -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -12,7 +14,17 @@
           theme: {
             extend: {
               colors: { brand: { DEFAULT:'#111827', soft:'#374151', gold:'#d4af37' } },
-              boxShadow: { card: '0 10px 30px rgba(0,0,0,.18)' }
+              boxShadow: { card: '0 10px 30px rgba(0,0,0,.18)' },
+              fontFamily: {
+                // ✅ Pretendard를 Tailwind 기본 sans로 지정
+                sans: [
+                    "Pretendard", "Pretendard Variable",
+                    "ui-sans-serif", "system-ui", "-apple-system",
+                    "Segoe UI", "Roboto", "Noto Sans", "Apple SD Gothic Neo",
+                    "Noto Sans KR", "Malgun Gothic", "Helvetica Neue", "Arial",
+                    "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", "sans-serif",
+                ],
+              }
             }
           }
         }
@@ -28,7 +40,7 @@
         .lib-btn:hover{ background: rgba(var(--brand), .9); }
     </style>
 </head>
-<body class="min-h-screen text-brand lib-page">
+<body class="min-h-screen text-brand lib-page font-sans">
 <!-- ✅ 카드 없이 본문 그대로 출력 -->
 <main class="min-h-screen p-4">
     <div th:insert="${content}"></div>
