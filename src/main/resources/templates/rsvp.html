@@ -3,7 +3,7 @@
 <body>
 <section>
     <h2 class="text-2xl sm:text-3xl font-semibold tracking-tight text-brand mb-2">일반 응모</h2>
-    <p class="text-sm text-brand/60 mb-5">대표 수령을 선택하면 2행부터는 이름만 입력하면 됩니다.</p>
+    <p class="text-sm text-brand/60 mb-5">대표 수령을 선택하면 2행부터는 이름만 입력하시면 됩니다.</p>
 
     <label id="repLabel" class="hidden items-center gap-2 text-sm text-brand/80">
         <input id="repCheck" type="checkbox"
@@ -237,7 +237,7 @@
           }
         }
       }
-      if(!confirm(`총 ${rows.length}명 맞으신가요? 기재주신 연락처로 알림 메일 발송됩니다.`)) return;
+      if(!confirm(`총 ${rows.length}명 맞으신가요? 기재해주신 연락처로 알림 메일 발송됩니다.`)) return;
 
       const body = { domainType:'RSVP', performerName:null, isRepDelivery:rep, consentAgreed: true, members:rows };
       const res = await fetch('/api/applications',{ method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body) });

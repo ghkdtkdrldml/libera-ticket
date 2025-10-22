@@ -21,7 +21,7 @@
 
     <!-- 아래 영역은 확인 전까지 숨김 -->
     <div id="afterArea" class="hidden">
-        <p class="text-sm text-brand/60 mb-5">대표 수령을 선택하면 2행부터는 이름만 입력하면 됩니다.</p>
+        <p class="text-sm text-brand/60 mb-5">대표 수령을 선택하면 2행부터는 이름만 입력하시면 됩니다.</p>
         <label id="repLabel" class="hidden items-center gap-2 text-sm text-brand/80">
             <input id="repCheck" type="checkbox" class="h-4 w-4 rounded border-brand/30 text-brand focus:ring-brand/30">
              대표 수령
@@ -52,7 +52,7 @@
                 <button id="submitBtn" disabled
                         class="inline-flex items-center rounded-lg bg-brand px-4 py-2 text-white font-medium hover:bg-brand/90 transition opacity-50 cursor-not-allowed"
                         onclick="onSubmit()">
-                    응모하기
+                    신청하기
                 </button>
             </div>
         </div>
@@ -279,7 +279,7 @@
         }
       }
       const name = pf.value.trim();
-      if(!confirm(`총 ${rows.length}명 맞으신가요? 기재주신 연락처로 알림 메일 발송됩니다.`)) return;
+      if(!confirm(`총 ${rows.length}명 맞으신가요? 기재해 주신 연락처로 알림 메일 발송됩니다.`)) return;
       const body = { domainType:'INVITE', performerName:name, isRepDelivery:rep, members:rows, consentAgreed:true };
       const res = await fetch('/api/applications',{ method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body) });
       if(res.ok){
