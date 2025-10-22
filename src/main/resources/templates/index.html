@@ -6,7 +6,7 @@
 <!-- 포스터 -->
 <section class="py-6 sm:py-8">
     <div class="px-4">
-        <img th:src="@{${poster} ?: '/img/Libera_poster.jpg'}"
+        <img th:src="@{${poster} ?: '/img/Libera_poster_resized.jpg'}"
              alt="공연 포스터"
              class="mx-auto block
                 w-full h-auto
@@ -64,7 +64,7 @@
     <div class="absolute inset-0 bg-black/70" onclick="closeProgram()"></div>
     <div class="absolute inset-0 flex items-center justify-center p-4">
         <div class="w-full max-w-3xl">
-            <img th:src="@{${programImage} ?: '/img/Libera_program.jpg'}"
+            <img th:src="@{${programImage} ?: '/img/Libera_program_resized.jpg'}"
                  alt="프로그램 안내"
                  class="w-full h-auto rounded-2xl ring-1 ring-black/10 shadow-xl object-contain" />
             <div class="mt-3 text-center">

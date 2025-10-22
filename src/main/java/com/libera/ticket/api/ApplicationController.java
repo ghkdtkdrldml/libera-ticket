@@ -23,10 +23,10 @@ public class ApplicationController {
     private final ApplicationMemberRepo memberRepo;
     private final ApplicationService service;
 
-    @Value("${app.event.poster:/img/Libera_poster.jpg}")
+    @Value("${app.event.poster:/img/Libera_poster_resized.jpg}")
     private String poster; // 정적 파일 경로 or 절대 URL
 
-    @Value("${app.event.program_image:/img/Libera_program.jpg}")
+    @Value("${app.event.program_image:/img/Libera_program_resized.jpg}")
     private String programImage; // 정적 파일 경로 or 절대 URL
 
     @GetMapping({"/", "/main"})
