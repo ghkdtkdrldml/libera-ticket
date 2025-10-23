@@ -1,7 +1,7 @@
 package com.libera.ticket.domain;
 public enum AppStatus {
     SUBMITTED("접수됨"),
-    CANCELLED("취소됨");
+    CANCELED("취소됨");
 
     private final String label;
     AppStatus(String label){ this.label = label; }

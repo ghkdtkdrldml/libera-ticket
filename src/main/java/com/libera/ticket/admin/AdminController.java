@@ -152,4 +152,26 @@ public class AdminController {
         return "redirect:/admin/applications/" + id;
     }
 
+    @GetMapping("/statistic")
+    public String statistic(Model model) {
+
+        // 전체 응모 현황
+        long totalApps = appRepo.count();
+        long canceledApps = appRepo.countByStatus(AppStatus.CANCELED);
+        long submittedApps = appRepo.countByStatus(AppStatus.SUBMITTED);
+
+        // 총 인원 수
+        Integer totalPeople = appRepo.sumTotalCount();
+
+        // 연주자별 인원 수
+        var performerStats = appRepo.findPerformerStats();
+
+        model.addAttribute("totalApps", totalApps);
+        model.addAttribute("canceledApps", canceledApps);
+        model.addAttribute("submittedApps", submittedApps);
+        model.addAttribute("totalPeople", totalPeople);
+        model.addAttribute("performerStats", performerStats);
+
+        return "admin_statistic";
+    }
 }

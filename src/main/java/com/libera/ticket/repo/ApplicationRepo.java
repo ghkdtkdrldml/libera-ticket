@@ -11,6 +11,7 @@ import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 public interface ApplicationRepo extends JpaRepository<Application, UUID> {
@@ -77,4 +78,25 @@ public interface ApplicationRepo extends JpaRepository<Application, UUID> {
                                  @Param("start") LocalDateTime start,
                                  @Param("end") LocalDateTime end,
                                  Sort sort);
+
+    @Query("SELECT SUM(a.totalCount) FROM Application a")
+    Integer sumTotalCount();
+
+    @Query("""
+  SELECT new map(
+    COALESCE(p.name, '직접응모') as performer,
+    COUNT(a) as appCount,
+    SUM(a.totalCount) as people,
+    SUM(CASE WHEN a.status = com.libera.ticket.domain.AppStatus.CANCELED THEN 1 ELSE 0 END) as canceled,
+    SUM(CASE WHEN a.status = com.libera.ticket.domain.AppStatus.SUBMITTED THEN a.totalCount ELSE 0 END) as validPeople
+  )
+  FROM Application a
+  LEFT JOIN a.performer p
+  GROUP BY p.name
+  ORDER BY validPeople DESC
+  """)
+    List<Map<String, Object>> findPerformerStats();
+
+    // ✅ 상태별 카운트
+    long countByStatus(AppStatus status);
 }

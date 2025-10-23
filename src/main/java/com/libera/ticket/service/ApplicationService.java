@@ -150,7 +150,7 @@ public class ApplicationService {
     public String cancelByToken(UUID token) {
         var ct = cancelTokenRepo.findById(token).orElseThrow();
         var app = ct.getApplication();
-        app.setStatus(AppStatus.CANCELLED);
+        app.setStatus(AppStatus.CANCELED);
         applicationRepo.save(app);
         return "응모가 취소되었습니다.";
     }
@@ -158,7 +158,7 @@ public class ApplicationService {
     @Transactional
     public String cancelById(UUID applicationId){
         var app = applicationRepo.findById(applicationId).orElseThrow();
-        app.setStatus(AppStatus.CANCELLED);
+        app.setStatus(AppStatus.CANCELED);
         applicationRepo.save(app);
         return "응모가 취소되었습니다.";
     }
@@ -166,7 +166,7 @@ public class ApplicationService {
     @Transactional
     public String cancelByApplicationId(UUID applicationId) {
         var app = applicationRepo.findById(applicationId).orElseThrow();
-        app.setStatus(AppStatus.CANCELLED);
+        app.setStatus(AppStatus.CANCELED);
         applicationRepo.save(app);
         return "응모가 취소되었습니다.";
     }

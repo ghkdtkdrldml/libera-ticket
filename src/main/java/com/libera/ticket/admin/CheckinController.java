@@ -41,7 +41,7 @@ public class CheckinController {
         String status = switch (t.getStatus()){
             case ISSUED -> "ISSUED";
             case USED -> "USED";
-            case CANCELLED -> "CANCELLED";
+            case CANCELED -> "CANCELED";
         };
 
         var resp = new TicketResp(
@@ -62,7 +62,7 @@ public class CheckinController {
         var t = ticketRepo.findByToken(token).orElse(null);
         if(t==null) return ResponseEntity.status(404).body("INVALID");
         if(t.getStatus()== TicketStatus.USED) return ResponseEntity.ok("ALREADY:" + t.getUsedAt());
-        if(t.getStatus()== TicketStatus.CANCELLED) return ResponseEntity.ok("CANCELLED");
+        if(t.getStatus()== TicketStatus.CANCELED) return ResponseEntity.ok("CANCELED");
         t.setStatus(TicketStatus.USED);
         t.setUsedAt(OffsetDateTime.now());
         ticketRepo.save(t);
@@ -90,14 +90,14 @@ public class CheckinController {
         return switch (s){
             case "ISSUED" -> "미사용";
             case "USED" -> "사용됨";
-            case "CANCELLED" -> "취소됨";
+            case "CANCELED" -> "취소됨";
             default -> "알수없음";
         };
     }
 
     // 간단 DTO (record 사용 가능)
     public record TicketResp(
-            String code,        // ISSUED/USED/CANCELLED/NOT_FOUND
+            String code,        // ISSUED/USED/CANCELED/NOT_FOUND
             String message,     // 미사용/사용됨/취소됨/유효하지 않음
             String name,
             String email,

@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      th:replace="fragments :: layout_wide(~{::body})">
+<body>
+<section class="lg:px-6">
+    <h2 class="text-2xl font-semibold text-brand mb-6">통계 대시보드</h2>
+
+    <!-- 전체 요약 -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+        <div class="rounded-xl bg-white ring-1 ring-brand/10 px-5 py-4 text-center">
+            <div class="text-sm text-brand/60 mb-1">총 응모 수</div>
+            <div class="text-2xl font-semibold" th:text="${totalApps}">0</div>
+        </div>
+        <div class="rounded-xl bg-white ring-1 ring-brand/10 px-5 py-4 text-center">
+            <div class="text-sm text-brand/60 mb-1">유효 응모</div>
+            <div class="text-2xl font-semibold text-green-700" th:text="${submittedApps}">0</div>
+        </div>
+        <div class="rounded-xl bg-white ring-1 ring-brand/10 px-5 py-4 text-center">
+            <div class="text-sm text-brand/60 mb-1">취소 응모</div>
+            <div class="text-2xl font-semibold text-red-700" th:text="${canceledApps}">0</div>
+        </div>
+        <div class="rounded-xl bg-white ring-1 ring-brand/10 px-5 py-4 text-center">
+            <div class="text-sm text-brand/60 mb-1">총 인원 수</div>
+            <div class="text-2xl font-semibold" th:text="${totalPeople}">0</div>
+        </div>
+    </div>
+
+    <!-- 연주자별 통계 테이블 -->
+    <div class="overflow-x-auto rounded-xl ring-1 ring-brand/10 bg-white mb-10">
+        <table class="min-w-full text-sm">
+            <thead class="bg-gray-50 text-brand/80">
+            <tr>
+                <th class="px-4 py-3 text-left">연주자</th>
+                <th class="px-4 py-3 text-right">응모 수</th>
+                <th class="px-4 py-3 text-right">총 인원</th>
+                <th class="px-4 py-3 text-right text-green-700">유효 인원</th>
+                <th class="px-4 py-3 text-right text-red-700">취소 수</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="s : ${performerStats}" class="border-t">
+                <td class="px-4 py-2" th:text="${s.performer}"></td>
+                <td class="px-4 py-2 text-right" th:text="${s.appCount}"></td>
+                <td class="px-4 py-2 text-right" th:text="${s.people}"></td>
+                <td class="px-4 py-2 text-right text-green-700 font-semibold" th:text="${s.validPeople}"></td>
+                <td class="px-4 py-2 text-right text-red-700" th:text="${s.canceled}"></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- 📊 차트 -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <!-- 막대 그래프 (유효 인원 기준) -->
+        <div class="rounded-xl bg-white ring-1 ring-brand/10 p-4">
+            <h3 class="text-lg font-semibold text-brand mb-3">연주자별 유효 인원</h3>
+            <canvas id="performerChart" height="200"></canvas>
+        </div>
+
+        <!-- 도넛 그래프 -->
+        <div class="rounded-xl bg-white ring-1 ring-brand/10 p-4">
+            <h3 class="text-lg font-semibold text-brand mb-3">응모 상태 비율</h3>
+            <canvas id="statusChart" height="200"></canvas>
+        </div>
+    </div>
+</section>
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script th:inline="javascript">
+    /*<![CDATA[*/
+        const performerStats = /*[[${performerStats}]]*/ [];
+        const labels = performerStats.map(s => s.performer);
+        const validData = performerStats.map(s => s.validPeople);
+
+        const totalApps = /*[[${totalApps}]]*/ 0;
+        const submittedApps = /*[[${submittedApps}]]*/ 0;
+        const canceledApps = /*[[${canceledApps}]]*/ 0;
+
+        // 🎵 연주자별 유효 인원 (막대형)
+        const ctx1 = document.getElementById('performerChart');
+        new Chart(ctx1, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: '유효 인원',
+                    data: validData,
+                    backgroundColor: 'rgba(60, 180, 75, 0.6)',
+                    borderColor: 'rgba(60, 180, 75, 1)',
+                    borderWidth: 1,
+                    borderRadius: 6,
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: { legend: { display: false } },
+                scales: {
+                    x: { ticks: { color: '#555', font: { size: 12 } } },
+                    y: { beginAtZero: true, ticks: { stepSize: 5 } }
+                }
+            }
+        });
+
+        // 🎯 응모 상태 비율 (도넛형)
+        const ctx2 = document.getElementById('statusChart');
+        new Chart(ctx2, {
+            type: 'doughnut',
+            data: {
+                labels: ['유효 응모', '취소 응모'],
+                datasets: [{
+                    data: [submittedApps, canceledApps],
+                    backgroundColor: ['rgba(60,180,75,0.7)', 'rgba(230,50,50,0.7)'],
+                    borderColor: ['#3cb44b', '#e63232'],
+                    borderWidth: 1,
+                }]
+            },
+            options: {
+                cutout: '70%',
+                plugins: {
+                    legend: { position: 'bottom' },
+                }
+            }
+        });
+    /*]]>*/
+</script>
+</body>
+</html>

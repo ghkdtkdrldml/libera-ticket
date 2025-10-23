@@ -36,7 +36,7 @@
       // data: {code,message,name,email,phone,issuedAt,usedAt}
       const statusClass =
         data.code==='USED' ? 'bg-yellow-50 ring-1 ring-yellow-200 text-yellow-800' :
-        data.code==='CANCELLED' ? 'bg-red-50 ring-1 ring-red-200 text-red-700' :
+        data.code==='CANCELED' ? 'bg-red-50 ring-1 ring-red-200 text-red-700' :
         data.code==='NOT_FOUND' ? 'bg-red-50 ring-1 ring-red-200 text-red-700' :
         'bg-emerald-50 ring-1 ring-emerald-200 text-emerald-800';
 
@@ -72,7 +72,7 @@
             }else if(txt==='ALREADY'){
               panel.innerHTML = `<div class="rounded-xl p-3 bg-yellow-50 ring-1 ring-yellow-200 text-yellow-800">이미 사용된 티켓입니다.</div>`;
               setTimeout(()=>{ panel.innerHTML=''; resume(); }, 1200);
-            }else if(txt==='CANCELLED'){
+            }else if(txt==='CANCELED'){
               panel.innerHTML = `<div class="rounded-xl p-3 bg-red-50 ring-1 ring-red-200 text-red-700">취소된 티켓입니다.</div>`;
               setTimeout(()=>{ panel.innerHTML=''; resume(); }, 1200);
             }else{

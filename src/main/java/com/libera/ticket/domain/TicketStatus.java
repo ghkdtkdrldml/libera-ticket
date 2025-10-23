@@ -1,3 +1,3 @@
 package com.libera.ticket.domain;
 
-public enum TicketStatus { ISSUED, USED, CANCELLED }
+public enum TicketStatus { ISSUED, USED, CANCELED }
