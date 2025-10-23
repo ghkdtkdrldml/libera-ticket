@@ -1,5 +1,7 @@
 <!DOCTYPE html>
-<html lang="ko" xmlns:th="http://www.thymeleaf.org" th:fragment="layout(content)">
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+
+<th:block th:fragment="layout_core(content, wide)">
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -105,10 +107,22 @@
 -->
 
 <!-- 컨텐츠 -->
-<main class="min-h-screen flex items-center justify-center p-4">
-    <div class="w-full max-w-3xl rounded-2xl bg-white/90 backdrop-blur-xl shadow-card ring-1 ring-black/10">
-        <div class="px-6 py-7 sm:px-10 sm:py-10">
-            <header class="mb-6 flex items-center justify-between">
+<main
+        class="min-h-screen p-4
+         flex justify-center items-center
+         lg:items-start"
+        th:classappend="${wide} ? ' lg:justify-start' : ''">
+    <div
+            class="w-full max-w-3xl rounded-2xl bg-white/90 backdrop-blur-xl shadow-card ring-1 ring-black/10"
+            th:classappend="${wide} ?
+      ' lg:max-w-none lg:bg-transparent lg:shadow-none lg:ring-0 lg:rounded-none lg:backdrop-blur-0' : ''">
+        <div
+                class="px-6 py-7 sm:px-10 sm:py-10"
+                th:classappend="${wide} ? ' lg:px-0 lg:py-0' : ''">
+
+            <!-- 헤더(로고 영역)도 PC에선 여백/스타일 최소화 -->
+            <header class="mb-6 flex items-center justify-between"
+                    th:classappend="${wide} ? ' lg:mb-4' : ''">
                 <h1 class="text-2xl sm:text-3xl font-semibold tracking-tight text-brand">
                     Libera <span class="text-brand/60">Ticket</span>
                 </h1>
@@ -124,11 +138,24 @@
             <!-- 페이지별 본문 -->
             <div th:insert="${content}"></div>
 
-            <footer class="mt-8 pt-6 border-t border-brand/10 text-xs text-brand/50 text-center">
+            <footer class="mt-8 pt-6 border-t border-brand/10 text-xs text-brand/50 text-center"
+                    th:classappend="${wide} ? ' lg:mt-6 lg:pt-4 lg:border-transparent lg:text-left lg:px-0' : ''">
                 © Libera • 공연 정보는 변동될 수 있습니다.
             </footer>
         </div>
     </div>
 </main>
 </body>
+</th:block>
+
+<!-- ✅ 기존 호환: 예전처럼 1개 파라미터로 호출하면 카드형 유지 -->
+<th:block th:fragment="layout(content)">
+    <th:block th:replace="~{this :: layout_core(${content}, false)}"></th:block>
+</th:block>
+
+<!-- ✅ 와이드 버전: 어드민만 이걸 사용 -->
+<th:block th:fragment="layout_wide(content)">
+    <th:block th:replace="~{this :: layout_core(${content}, true)}"></th:block>
+</th:block>
+
 </html>
