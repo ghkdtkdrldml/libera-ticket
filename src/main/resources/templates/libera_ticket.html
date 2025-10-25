@@ -44,10 +44,10 @@
             <tbody>
             <tr th:each="a : ${page.content}" class="border-t">
                 <td class="px-4 py-2"
-                    th:text="${#temporals.format(a.createdAt, 'yyyy-MM-dd HH:mm')}"></td>
+                    th:text="${#temporals.format(a.createdAt, 'yyyy-MM-dd')}"></td>
 
                 <!-- 연주자명: '허영우'는 '일반응모'로 표기 -->
-                <td class="px-4 py-2"
+                <td class="px-4 py-2 whitespace-nowrap"
                     th:text="${a.performer != null && a.performer.name != '허영우' ? a.performer.name : '일반응모'}"></td>
 
                 <td class="px-4 py-2 text-right" th:text="${a.totalCount}"></td>
