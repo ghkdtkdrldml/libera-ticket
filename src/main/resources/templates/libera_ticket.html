@@ -32,27 +32,27 @@
 
     <!-- 목록 -->
     <div class="overflow-x-auto rounded-xl ring-1 ring-brand/10 bg-white">
-        <table class="min-w-full text-sm">
+        <table class="min-w-full text-sm table-auto min-w-[420px]">
             <thead class="bg-gray-50 text-brand/80">
             <tr>
-                <th class="px-4 py-3 text-left whitespace-nowrap">신청날짜</th>
-                <th class="px-4 py-3 text-left whitespace-nowrap">연주자</th>
-                <th class="px-4 py-3 text-right whitespace-nowrap">인원</th>
-                <th class="px-4 py-3 text-left whitespace-nowrap">대표수령자</th>
+                <th class="px-3 py-3 text-left whitespace-nowrap">신청날짜</th>
+                <th class="px-3 py-3 text-left whitespace-nowrap">연주자</th>
+                <th class="px-3 py-3 text-right whitespace-nowrap">인원</th>
+                <th class="px-3 py-3 text-left whitespace-nowrap">대표수령자</th>
             </tr>
             </thead>
             <tbody>
             <tr th:each="a : ${page.content}" class="border-t">
-                <td class="px-4 py-2"
-                    th:text="${#temporals.format(a.createdAt, 'yyyy-MM-dd')}"></td>
+                <td class="px-3 py-2 whitespace-nowrap break-keep"
+                    th:text="${#temporals.format(a.createdAt, 'yy/MM/dd')}"></td>
 
                 <!-- 연주자명: '허영우'는 '일반응모'로 표기 -->
-                <td class="px-4 py-2 whitespace-nowrap"
+                <td class="px-3 py-2 whitespace-nowrap"
                     th:text="${a.performer != null && a.performer.name != '허영우' ? a.performer.name : '일반응모'}"></td>
 
-                <td class="px-4 py-2 text-right" th:text="${a.totalCount}"></td>
+                <td class="px-3 py-2 text-right" th:text="${a.totalCount}"></td>
 
-                <td class="px-4 py-2">
+                <td class="px-3 py-2">
                     <span th:text="${a.repName}"></span>
                 </td>
             </tr>
