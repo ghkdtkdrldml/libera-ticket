@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      th:replace="fragments :: layout_wide(~{::body})">
+<body>
+<section class="lg:px-6">
+
+    <!-- 상단 요약 카드 -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+        <div class="rounded-xl bg-white ring-1 ring-brand/10 px-5 py-4 text-center md:col-span-2">
+            <div class="text-sm text-brand/60 mb-1">총 응모 수 </div>
+            <div class="text-2xl font-semibold" th:text="${totalApps}">0</div>
+        </div>
+        <div class="rounded-xl bg-white ring-1 ring-brand/10 px-5 py-4 text-center md:col-span-2">
+            <div class="text-sm text-brand/60 mb-1">총 인원 수 </div>
+            <div class="text-2xl font-semibold">
+                <span th:text="${totalPeople}">0</span>
+                <span class="text-base text-brand/60">/146</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- 연주자 검색 (허영우 검색 제외 안내) -->
+    <form method="get" class="grid grid-cols-1 md:grid-cols-12 gap-2 mb-3">
+        <div class="md:col-span-10">
+            <input type="text" name="q" placeholder="연주자명으로 검색"
+                   th:value="${q}" class="w-full rounded-xl ring-1 ring-brand/15 px-4 py-2" />
+        </div>
+        <div class="md:col-span-2">
+            <button class="w-full rounded-xl bg-brand text-white px-4 py-2">검색</button>
+        </div>
+    </form>
+
+    <!-- 목록 -->
+    <div class="overflow-x-auto rounded-xl ring-1 ring-brand/10 bg-white">
+        <table class="min-w-full text-sm">
+            <thead class="bg-gray-50 text-brand/80">
+            <tr>
+                <th class="px-4 py-3 text-left whitespace-nowrap">신청날짜</th>
+                <th class="px-4 py-3 text-left whitespace-nowrap">연주자</th>
+                <th class="px-4 py-3 text-right whitespace-nowrap">인원</th>
+                <th class="px-4 py-3 text-left whitespace-nowrap">대표수령자</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="a : ${page.content}" class="border-t">
+                <td class="px-4 py-2"
+                    th:text="${#temporals.format(a.createdAt, 'yyyy-MM-dd HH:mm')}"></td>
+
+                <!-- 연주자명: '허영우'는 '일반응모'로 표기 -->
+                <td class="px-4 py-2"
+                    th:text="${a.performer != null && a.performer.name != '허영우' ? a.performer.name : '일반응모'}"></td>
+
+                <td class="px-4 py-2 text-right" th:text="${a.totalCount}"></td>
+
+                <td class="px-4 py-2">
+                    <span th:text="${a.repName}"></span>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- 페이지네이션 -->
+    <div class="mt-4 flex items-center justify-center gap-2 text-sm">
+        <a th:if="${!page.first}" th:href="@{|/libera/ticket?page=${page.number-1}&size=${page.size}&q=${q}|}"
+           class="px-3 py-1 rounded ring-1 ring-brand/15">이전</a>
+        <span th:text="${page.number+1} + ' / ' + ${page.totalPages}"></span>
+        <a th:if="${!page.last}" th:href="@{|/libera/ticket?page=${page.number+1}&size=${page.size}&q=${q}|}"
+           class="px-3 py-1 rounded ring-1 ring-brand/15">다음</a>
+    </div>
+</section>
+</body>
+</html>
