@@ -48,7 +48,7 @@
 
                 <!-- 연주자명: '허영우'는 '일반응모'로 표기 -->
                 <td class="px-3 py-2 whitespace-nowrap"
-                    th:text="${a.performer != null && a.performer.name != '허영우' ? a.performer.name : '일반응모'}"></td>
+                    th:text="${a.performer != null && a.performer.name != '허영우' ? a.performer.name : '-'}"></td>
 
                 <td class="px-3 py-2 text-right" th:text="${a.totalCount}"></td>
 
@@ -65,7 +65,7 @@
         <a th:if="${!page.first}" th:href="@{|/libera/ticket?page=${page.number-1}&size=${page.size}&q=${q}|}"
            class="px-3 py-1 rounded ring-1 ring-brand/15">이전</a>
         <span th:text="${page.number+1} + ' / ' + ${page.totalPages}"></span>
-        <a th:if="${!page.last}" th:href="@{|/libera/ticket?page=${page.number+1}&size=${page.size}&q=${q}|}"
+        <a th:if="${!page.last}" th:href="@{/libera/ticket(page=${page.number+1}, size=${page.size}, q=${q})}"
            class="px-3 py-1 rounded ring-1 ring-brand/15">다음</a>
     </div>
 </section>

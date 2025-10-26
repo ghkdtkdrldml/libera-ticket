@@ -30,6 +30,10 @@ public class PageController {
     ) {
         // '허영우'는 검색 불가 → 검색어 무시
         if ("허영우".equals(q)) q = null;
+        if (q != null) {
+            q = q.trim();
+            if (q.isBlank() || "null".equalsIgnoreCase(q)) q = null; // 안전빵
+        }
 
         var pageable = org.springframework.data.domain.PageRequest.of(
                 page, size, org.springframework.data.domain.Sort.by(org.springframework.data.domain.Sort.Direction.DESC, "createdAt")
