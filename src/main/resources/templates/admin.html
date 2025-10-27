@@ -126,7 +126,7 @@
         <a th:if="${!page.first}" th:href="@{/admin(page=${page.number-1}, size=${page.size}, q=${q}, type=${type}, status=${status})}"
            class="px-3 py-1 rounded ring-1 ring-brand/15">이전</a>
         <span th:text="${page.number+1} + ' / ' + ${page.totalPages}"></span>
-        <a th:if="${!page.last}" th:href="@{/admin(page=${page.number+1}, size=${page.size}, q=${q}, type=${type}, status=${status}}"
+        <a th:if="${!page.last}" th:href="@{/admin(page=${page.number+1}, size=${page.size}, q=${q}, type=${type}, status=${status})}"
            class="px-3 py-1 rounded ring-1 ring-brand/15">다음</a>
     </div>
 </section>
