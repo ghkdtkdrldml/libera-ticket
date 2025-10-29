@@ -23,6 +23,7 @@ public class ApplicationService {
     private final CancelTokenRepo cancelTokenRepo;
     private final SmsService smsService;
     private final ResendEmailService resendEmailService;
+    private final NotificationService notificationService;
 
     @Value("${app.base-url}")
     private String baseUrl;
@@ -87,6 +88,29 @@ public class ApplicationService {
         // 대표 연락처(1행)로만 발송
         var repEmail = req.members().get(0).email();
         var repPhone = req.members().get(0).phone(); // 010-1234-5678 형태
+
+        UUID id = app.getApplicationId();
+
+        String viewUrl = baseUrl + "/app/" + id; // ✅ 공개 조회 링크
+
+        NotificationKind kind = (domainType == DomainType.INVITE)
+                ? NotificationKind.APPLICATION_SUBMITTED
+                : NotificationKind.ENTRY_SUBMITTED;
+
+        // ----- 템플릿 기반 알림 발송 -----
+        try {
+            // 메일/문자 공용 모델
+            Map<String, Object> model = new HashMap<>();
+            model.put("detailUrl", viewUrl);
+            model.put("eventName", "Libera"); // 필요 시 공연명으로 교체
+
+            notificationService.send(kind, Channel.EMAIL, repEmail, model);
+            notificationService.send(kind, Channel.SMS,   repPhone, model);
+
+        } catch (Exception e) {
+            log.warn("Notification send failed: {}", e.toString());
+        }
+/*
         // … 기존 저장 로직 후
         try {
             if (domainType == DomainType.INVITE) {
@@ -98,9 +122,6 @@ public class ApplicationService {
             log.warn("SMS 발송 실패: {}", e.getMessage());
         }
         try {
-            UUID id = app.getApplicationId();
-
-            String viewUrl = baseUrl + "/app/" + id; // ✅ 공개 조회 링크
 
             if (domainType == DomainType.INVITE) {
                 // 메일 HTML (간결한 버튼)
@@ -142,7 +163,7 @@ public class ApplicationService {
         } catch (Exception e) {
             log.warn("이메일 발송 실패: {}", e.getMessage());
         }
-
+*/
         return new CreateApplicationRes(app.getApplicationId().toString(), app.getTotalCount(), cancelUrl, msg);
     }
 

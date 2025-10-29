@@ -3,6 +3,7 @@ package com.libera.ticket.repo;
 import com.libera.ticket.domain.AppStatus;
 import com.libera.ticket.domain.Application;
 import com.libera.ticket.domain.DomainType;
+import jakarta.persistence.LockModeType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -92,7 +93,7 @@ public interface ApplicationRepo extends JpaRepository<Application, UUID> {
     COUNT(a) as appCount,
     SUM(a.totalCount) as people,
     SUM(CASE WHEN a.status = com.libera.ticket.domain.AppStatus.CANCELED THEN 1 ELSE 0 END) as canceled,
-    SUM(CASE WHEN a.status = com.libera.ticket.domain.AppStatus.SUBMITTED THEN a.totalCount ELSE 0 END) as validPeople
+    SUM(CASE WHEN a.status != com.libera.ticket.domain.AppStatus.CANCELED THEN a.totalCount ELSE 0 END) as validPeople
   )
   FROM Application a
   LEFT JOIN a.performer p
@@ -115,7 +116,7 @@ public interface ApplicationRepo extends JpaRepository<Application, UUID> {
     @Query("""
       select a from Application a
       left join a.performer p
-      where a.status = com.libera.ticket.domain.AppStatus.SUBMITTED
+      where a.status != com.libera.ticket.domain.AppStatus.CANCELED
         and ( :q is null or :q = '' or (p is not null and p.name <> '허영우' and p.name like concat('%', :q, '%')) )
       """)
     Page<Application> findSubmittedByPerformerLike(@Param("q") String q, Pageable pageable);
@@ -124,7 +125,7 @@ public interface ApplicationRepo extends JpaRepository<Application, UUID> {
     @Query("""
       select count(a) from Application a
       left join a.performer p
-      where a.status = com.libera.ticket.domain.AppStatus.SUBMITTED
+      where a.status != com.libera.ticket.domain.AppStatus.CANCELED
         and ( :q is null or :q = '' or (p is not null and p.name <> '허영우' and p.name like concat('%', :q, '%')) )
       """)
     long countSubmittedFiltered(@Param("q") String q);
@@ -133,8 +134,15 @@ public interface ApplicationRepo extends JpaRepository<Application, UUID> {
     @Query("""
       select coalesce(sum(a.totalCount),0) from Application a
       left join a.performer p
-      where a.status = com.libera.ticket.domain.AppStatus.SUBMITTED
+      where a.status != com.libera.ticket.domain.AppStatus.CANCELED
         and ( :q is null or :q = '' or (p is not null and p.name <> '허영우' and p.name like concat('%', :q, '%')) )
       """)
     int sumPeopleSubmittedFiltered(@Param("q") String q);
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("""
+        select a from Application a
+        where a.status = com.libera.ticket.domain.AppStatus.SUBMITTED
+    """)
+    List<Application> findAllSubmittedForUpdate();
 }

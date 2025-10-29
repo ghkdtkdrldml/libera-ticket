@@ -109,12 +109,12 @@
                     <div class="text-xs text-brand/60" th:text="${a.repPhone}"></div>
                 </td>
                 <td class="px-3 py-2 text-center">
-                    <form th:if="${a.status.name() == 'SUBMITTED'}"
+                    <form th:if="${a.status.name() != 'CANCELED'}"
                           th:action="@{'/admin/applications/' + ${a.applicationId} + '/cancel'}" method="post"
                           onsubmit="return confirm('해당 응모를 취소할까요?');">
                         <button class="px-3 py-1 rounded-lg ring-1 ring-red-200 text-red-700 hover:bg-red-50">취소</button>
                     </form>
-                    <span th:if="${a.status.name() != 'SUBMITTED'}" class="text-brand/50">-</span>
+                    <span th:if="${a.status.name() == 'CANCELED'}" class="text-brand/50">-</span>
                 </td>
             </tr>
             </tbody>
