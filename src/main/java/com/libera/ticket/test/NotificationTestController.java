@@ -58,7 +58,7 @@ public class NotificationTestController {
         model.put("qrSendDateText", "11월 7일");
         model.put("venueFullAddress", "서울시 종로구 창경궁로 22길 22-2");
         model.put("detailUrl", viewUrl);
-        model.put("photoUrl", wonnamImage);
+        model.put("photoUrl", baseUrl+"/"+wonnamImage);
         // 필요 시: model.put("cancelUrl", "https://.../cancel/xxxxx");
 
         // 수신자
