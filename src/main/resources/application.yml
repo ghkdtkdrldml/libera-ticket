@@ -25,6 +25,7 @@ spring:
   jpa:
     hibernate:
       ddl-auto: update
+    show-sql: true
     properties:
       hibernate:
         format_sql: true
@@ -68,3 +69,8 @@ resend:
   api-key: ${RESEND_API_KEY}
   from: ${RESEND_FROM}
 
+logging:
+  level:
+    org:
+      springframework:
+        scheduling: DEBUG

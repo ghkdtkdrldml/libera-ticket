@@ -1,10 +1,7 @@
 package com.libera.ticket.test;
 
-import com.libera.ticket.domain.Application;
-import com.libera.ticket.domain.DomainType;
+import com.libera.ticket.domain.*;
 import com.libera.ticket.repo.ApplicationRepo;
-import com.libera.ticket.domain.Channel;
-import com.libera.ticket.domain.NotificationKind;
 import com.libera.ticket.service.NotificationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -44,6 +41,10 @@ public class NotificationTestController {
         Application app = applicationRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("APPLICATION_NOT_FOUND"));
 
+        app.setStatus(AppStatus.CONFIRMED);
+
+        applicationRepository.save(app);
+
         // 확정 알림 템플릿 선택 (초대권/응모)
         NotificationKind kind = (app.getDomainType() == DomainType.INVITE)
                 ? NotificationKind.APPLICATION_CONFIRMED
@@ -72,6 +73,8 @@ public class NotificationTestController {
         if (alsoSms) {
             notificationService.send(kind, Channel.SMS, phone, new HashMap<>(model));
         }
+
+
 
         return ResponseEntity.ok(Map.of(
                 "applicationId", applicationId,
