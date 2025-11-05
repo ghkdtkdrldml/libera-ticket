@@ -1,0 +1,10 @@
+[Libera]
+QR 티켓이 발송되었습니다.
+현장에서 아래 링크의 QR을 제시해 주세요.
+
+- 공연 일시: [[${eventDateTimeText}]], [[${venueName}]]
+
+티켓 보기: [[${ticketUrl}]]
+
+※ 비지정석 운영 / [[${entryStartTimeText} ?: '6시 20분']]부터 입장 가능
+※ 원활한 진행을 위해 [[${recommendArrivalTimeText} ?: '6시 50분까지']] 도착 부탁드립니다.

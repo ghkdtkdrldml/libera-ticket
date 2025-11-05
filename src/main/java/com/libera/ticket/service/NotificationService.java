@@ -55,10 +55,11 @@ public class NotificationService {
 //        if (model == null) model = new HashMap<>();
 //        model.putIfAbsent("subject", subject);
 
+
         Context ctx = new Context(Locale.getDefault(), model);
         String html = templateEngine.process(kind.getMailTemplateName(), ctx);
 
-        resendEmailService.sendHtml(to, subject, html);
+            resendEmailService.sendHtml(to, subject, html);
         log.debug("✅ Email sent. kind={}, to={}", kind.name(), to);
     }
 

@@ -1,0 +1,86 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+<th:block th:replace="~{mail/_layout :: layout(~{::content})}">
+    <th:block th:fragment="content"
+              th:with="
+                eventDT=${#messages.msgOrNull('mail.ticket_sent.eventDateTimeText')} ?: '11월 8일(토) 저녁 7시',
+                venueNameMsg=${#messages.msgOrNull('mail.ticket_sent.venueName')} ?: '원남교당 2층 대각전',
+                recommendTime=${#messages.msgOrNull('mail.ticket_sent.recommendArrivalTimeText')} ?: '6시 50분까지',
+                entryStart=${#messages.msgOrNull('mail.ticket_sent.entryStartTimeText')} ?: '6시 20분',
+                addr=${#messages.msgOrNull('mail.ticket_sent.venueFullAddress')},
+                cancel=${#messages.msgOrNull('mail.ticket_sent.cancelUrl')}
+              ">
+        <div style="font-family:Pretendard,Apple SD Gothic Neo,Roboto,Noto Sans,Arial,sans-serif;line-height:1.7;color:#111827">
+            <h2 style="margin:0 0 12px 0;font-size:18px">[Libera] 제 1회 정기공연 QR 티켓 발송 안내</h2>
+
+            <!-- 수신자명은 선택 -->
+            <p th:if="${recipientName}" style="margin:0 0 6px 0">
+                <b th:text="${recipientName}">홍길동</b> 님, 안녕하세요.
+            </p>
+
+            <p style="margin:0 0 16px 0">입장을 위한 QR 티켓을 보내드립니다. 아래 QR을 현장에서 제시해주세요.</p>
+
+            <p style="margin:0 0 14px 0">
+                - 공연 일시:
+                <span th:text="${eventDT}">11월 8일(토) 저녁 7시</span>,
+                <span th:text="${venueNameMsg}">원남교당 2층 대각전</span>
+            </p>
+
+            <!-- QR 이미지: cid 우선 → url → dataUri -->
+            <p style="margin:16px 0">
+                <img th:src="${qrImgUrl}"
+                     alt="QR Ticket"
+                     width="240" height="240"
+                     style="display:block;border-radius:10px;border:1px solid #eee"/>
+            </p>
+
+            <!-- 티켓 상세 링크 -->
+            <p style="margin:12px 0">
+                <a th:href="${ticketUrl}"
+                   style="display:inline-block;background:#111827;color:#fff;text-decoration:none;padding:10px 14px;border-radius:10px">
+                    티켓 상세 보기
+                </a>
+            </p>
+
+            <!-- 링크 열리지 않을 때 대비한 주소 노출 -->
+            <p style="margin:16px 0 0 0;font-size:12px;color:#6b7280;word-break:break-all">
+                링크가 열리지 않으면 아래 주소를 복사해 브라우저에 붙여 넣어 주세요.<br/>
+                <span th:text="${ticketUrl}">https://example.com/t/XXXXXXXX</span>
+            </p>
+
+            <hr style="border:0;border-top:1px solid #e5e7eb;margin:24px 0"/>
+
+            <!-- 이용 안내 -->
+            <h3 style="margin:0 0 8px 0;font-size:16px">이용 안내</h3>
+            <ul style="margin:0 0 12px 18px;padding:0">
+                <li>좌석은 비지정석으로 운영됩니다.</li>
+                <li>
+                    <b th:text="${recommendTime}">6시 50분까지</b> 입장 부탁드립니다.
+                    (<span th:text="${entryStart}">6시 20분</span>부터 입장 가능)
+                </li>
+            </ul>
+
+            <!-- 오시는 길(메시지에 있으면 표시) -->
+            <div th:if="${addr}">
+                <h3 style="margin:16px 0 8px 0;font-size:16px">오시는 길</h3>
+                <p style="margin:0 0 10px 0">
+                    - 주소 :
+                    <span th:text="${addr}">서울 종로구 창경궁로 22길 22-2</span>
+                </p>
+            </div>
+
+            <!-- 취소 링크(메시지에 있으면 표시) -->
+            <div th:if="${cancel}" style="margin-top:16px">
+                <h3 style="margin:16px 0 8px 0;font-size:16px">참석이 어려우신가요?</h3>
+                <p style="margin:0 0 8px 0">아래에서 초대권 수령을 취소하실 수 있습니다.</p>
+                <p style="margin:0">
+                    <a th:href="${cancel}"
+                       style="display:inline-block;background:#6b7280;color:#fff;text-decoration:none;padding:8px 12px;border-radius:8px">
+                        초대권 취소하기
+                    </a>
+                </p>
+            </div>
+        </div>
+    </th:block>
+</th:block>
+</html>

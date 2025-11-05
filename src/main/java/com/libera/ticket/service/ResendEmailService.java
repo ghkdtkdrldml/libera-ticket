@@ -10,6 +10,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.util.Map;
+
 @Service
 public class ResendEmailService {
     private final String apiKey;
@@ -37,4 +39,5 @@ public class ResendEmailService {
             throw new RuntimeException("Resend email 발송 실패: " + e.getMessage(), e);
         }
     }
+
 }
