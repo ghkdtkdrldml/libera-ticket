@@ -21,6 +21,11 @@
                 <span th:text="${used ? '사용됨' : '미사용'}"
                       th:classappend="${used} ? 'text-red-600' : 'text-emerald-600'"></span>
             </div>
+            <!-- ✅ 대표수령 표시 -->
+            <div th:if="${repDelivery}" class="mt-1">
+                <span class="text-brand/60">유형:</span>
+                <span>대표 수령 (<span th:text="${memberCount}"></span>명)</span>
+            </div>
             <div><span class="text-brand/60">발급일:</span> <span th:text="${#temporals.format(t.issuedAt, 'yyyy-MM-dd HH:mm')}"></span></div>
             <div th:if="${t.usedAt!=null}"><span class="text-brand/60">사용일:</span> <span th:text="${#temporals.format(t.usedAt, 'yyyy-MM-dd HH:mm')}"></span></div>
         </div>

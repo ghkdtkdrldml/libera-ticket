@@ -22,9 +22,23 @@ public class TicketController {
     @GetMapping("/t/{token}")
     public String view(@PathVariable String token, Model model){
         var t = ticketRepo.findByToken(token).orElse(null);
-        if(t==null){ model.addAttribute("notfound", true); return "ticket_view"; }
+        if (t == null) {
+            model.addAttribute("notfound", true);
+            return "ticket_view";
+        }
+
+        boolean used = t.getStatus() == TicketStatus.USED;
         model.addAttribute("t", t);
-        model.addAttribute("used", t.getStatus()== TicketStatus.USED);
+        model.addAttribute("used", used);
+
+        // ✅ 대표수령 여부 및 인원수
+        var app = t.getApplication();
+        if (app != null && app.isRepDelivery()) {
+            int count = app.getTotalCount();
+            model.addAttribute("repDelivery", true);
+            model.addAttribute("memberCount", count);
+        }
+
         return "ticket_view";
     }
 

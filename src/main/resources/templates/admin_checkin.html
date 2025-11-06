@@ -41,6 +41,12 @@
         'bg-emerald-50 ring-1 ring-emerald-200 text-emerald-800';
 
       const usedInfo = data.usedAt ? `<div><span class="text-brand/60">사용일:</span> ${data.usedAt}</div>` : '';
+
+        // ✅ 대표수령 표기 (데이터가 있으면 한 줄 추가)
+      const repInfo = (data.repDelivery && data.partySize)
+      ? `<div><span class="text-brand/60">유형:</span> 대표 수령 (<b>${data.partySize}</b>명)</div>`
+      : '';
+
       const actionBtn =
         data.code==='ISSUED'
           ? `<button id="confirmUse" class="mt-3 px-4 py-2 rounded-lg bg-brand text-white">사용 처리</button>`
@@ -53,6 +59,7 @@
             <div><span class="text-brand/60">이름:</span> ${data.name ?? '-'}</div>
             <div><span class="text-brand/60">이메일:</span> ${data.email ?? '-'}</div>
             <div><span class="text-brand/60">전화번호:</span> ${data.phone ?? '-'}</div>
+            ${repInfo}  <!-- ✅ 여기 추가 -->
             <div><span class="text-brand/60">발급일:</span> ${data.issuedAt ?? '-'}</div>
             ${usedInfo}
           </div>

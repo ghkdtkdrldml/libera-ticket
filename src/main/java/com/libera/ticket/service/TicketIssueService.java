@@ -50,7 +50,7 @@ public class TicketIssueService {
 
         boolean repDelivery = app.isRepDelivery();
         List<Ticket> existing = ticketRepo.findAllByApplication_ApplicationIdOrderByMemberRowAsc(applicationId);
-
+        app.setStatus(AppStatus.ISSUED);
         if (repDelivery) {
             if (!existing.isEmpty()) return 0;
             ApplicationMember rep = members.get(0); // 대표

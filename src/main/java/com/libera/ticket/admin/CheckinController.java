@@ -28,7 +28,7 @@ public class CheckinController {
     public ResponseEntity<?> getTicket(@PathVariable String token){
         var t = ticketRepo.findByToken(token).orElse(null);
         if(t == null){
-            return ResponseEntity.status(404).body(new TicketResp("NOT_FOUND", "유효하지 않은 티켓입니다.", null, null, null, null, null));
+            return ResponseEntity.status(404).body(new TicketResp("NOT_FOUND", "유효하지 않은 티켓입니다.", null, null, null, null, null,null,null));
         }
         var fmt = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
         String issued = t.getIssuedAt()!=null ? t.getIssuedAt().format(fmt) : null;
@@ -44,6 +44,11 @@ public class CheckinController {
             case CANCELED -> "CANCELED";
         };
 
+        // ✅ 대표수령 여부/명수 추가
+        var app = t.getApplication();
+        boolean rep = (app != null && app.isRepDelivery());
+        Integer partySize = rep ? app.getTotalCount() : null;
+
         var resp = new TicketResp(
                 status,
                 statusText(status),
@@ -51,7 +56,9 @@ public class CheckinController {
                 emailMasked,
                 phoneMasked,
                 issued,
-                used
+                used,
+                rep,         // ✅ repDelivery
+                partySize    // ✅ partySize
         );
         return ResponseEntity.ok(resp);
     }
@@ -103,6 +110,8 @@ public class CheckinController {
             String email,
             String phone,
             String issuedAt,
-            String usedAt
+            String usedAt,
+            Boolean repDelivery,   // ✅ 대표수령 여부
+            Integer partySize      // ✅ 명수
     ) {}
 }

@@ -150,4 +150,7 @@ public interface ApplicationRepo extends JpaRepository<Application, UUID> {
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("select a from Application a where a.applicationId = :id")
     Optional<Application> findByIdForUpdate(@Param("id") UUID id);
+
+    @Query("select a.applicationId from Application a where a.status = :status")
+    List<UUID> findIdsByStatus(@Param("status") AppStatus status);
 }
