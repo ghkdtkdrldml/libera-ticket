@@ -4,6 +4,22 @@
 <section>
     <h2 class="text-2xl font-semibold text-brand mb-3">현장 체크인</h2>
 
+    <!-- ✅ 통계 뱃지: 버튼보다 위에, 충분한 하단 마진 -->
+    <div id="statsPills" class="flex flex-wrap items-center gap-2 mb-4">
+  <span class="inline-flex items-center gap-1 text-sm rounded-full px-3 py-1 ring-1 ring-emerald-200 bg-emerald-50 text-emerald-700">
+    입장팀 <b id="entranceTeams" class="ml-1">0</b>
+  </span>
+        <span class="inline-flex items-center gap-1 text-sm rounded-full px-3 py-1 ring-1 ring-emerald-200 bg-emerald-50 text-emerald-700">
+    입장인원 <b id="entrancePeople" class="ml-1">0</b>
+  </span>
+        <span class="inline-flex items-center gap-1 text-sm rounded-full px-3 py-1 ring-1 ring-slate-200 bg-slate-50 text-slate-700">
+    잔여팀 <b id="remainTeams" class="ml-1">0</b>
+  </span>
+        <span class="inline-flex items-center gap-1 text-sm rounded-full px-3 py-1 ring-1 ring-slate-200 bg-slate-50 text-slate-700">
+    잔여인원 <b id="remainPeople" class="ml-1">0</b>
+  </span>
+    </div>
+
     <div class="flex items-center gap-2 mb-3">
         <select id="cameraSel" class="rounded-lg ring-1 ring-black/10 px-3 py-2 min-w-[200px] hidden"></select>
         <button id="startBtn" class="px-3 py-2 rounded-lg bg-brand text-white">카메라 시작</button>
@@ -31,6 +47,20 @@
     const panel     = document.getElementById('panel');
 
     let qr, currentCamId=null, running=false, lastToken=null;
+
+      async function refreshCheckedIn() {
+        try {
+          const r = await fetch('/admin/checkin/stats');
+          console.log('++++');
+          console.log(r);
+          if (!r.ok) return;
+          const s = await r.json();
+          document.getElementById('entranceTeams').textContent  = s.entranceTeams ?? 0;
+          document.getElementById('entrancePeople').textContent = s.entrancePeople ?? 0;
+          document.getElementById('remainTeams').textContent    = s.remainTeams ?? 0;
+          document.getElementById('remainPeople').textContent   = s.remainPeople ?? 0;
+        } catch (e) { /* 네트워크 오류는 무시 */ }
+      }
 
     function infoCard(data, token){
       // data: {code,message,name,email,phone,issuedAt,usedAt}
@@ -74,6 +104,7 @@
             const txt = await r.text();
             if(txt==='OK'){
               panel.innerHTML = `<div class="rounded-xl p-3 bg-emerald-50 ring-1 ring-emerald-200 text-emerald-800">사용 처리 완료</div>`;
+              refreshCheckedIn(); // ✅ 추가
               // 잠깐 표시 후 다시 스캔 재개
               setTimeout(()=>{ panel.innerHTML=''; resume(); }, 800);
             }else if(txt==='ALREADY'){
@@ -127,6 +158,7 @@
     }
 
     async function initCameras(){
+      await refreshCheckedIn();
       try{
         const devs = await Html5Qrcode.getCameras();
         if(!devs || devs.length===0){
@@ -147,6 +179,7 @@
         panel.innerHTML = `<div class="rounded-xl p-3 bg-yellow-50 ring-1 ring-yellow-200 text-yellow-800">카메라 접근 실패: 브라우저 권한을 허용해 주세요.</div>`;
         console.error(e);
       }
+      setInterval(refreshCheckedIn, 60*1000);
     }
 
     async function start(camId){

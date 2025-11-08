@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Map;
 
 @Controller
 @RequiredArgsConstructor
@@ -74,6 +75,25 @@ public class CheckinController {
         t.setUsedAt(OffsetDateTime.now());
         ticketRepo.save(t);
         return ResponseEntity.ok("OK");
+    }
+
+
+    // 입장인원통계
+    @GetMapping("/stats")
+    @ResponseBody
+    public Map<String, Object> stats() {
+        long usedTeams   = ticketRepo.countUsedTeams();
+        long usedPeople  = ticketRepo.sumUsedPeople();
+        long unusedTeams = ticketRepo.countUnusedTeams();
+        long unusedPeople= ticketRepo.sumUnusedPeople();
+
+        return Map.of(
+                "entranceTeams", usedTeams,      // 입장팀
+                "entrancePeople", usedPeople,    // 입장인원
+                "remainTeams", unusedTeams,      // 잔여팀
+                "remainPeople", unusedPeople,    // 잔여인원
+                "ts", System.currentTimeMillis()
+        );
     }
 
 
